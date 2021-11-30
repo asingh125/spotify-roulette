@@ -2,12 +2,12 @@ const mongoose = require('mongoose')
 const express = require('express')
 const session = require('cookie-session')
 const UserRouter = require('./routes/account')
-const PlaylistRouter = require('./routes/api')
+const QuestionRouter = require('./routes/api')
 const errorHandler = require('./middlewares/errorHandler')
 const path = require('path')
 
 const app = express()
-const MONGO_URI = process.env.MONGODB_URI || 'mongodb+srv://aarushi:cis197@cluster0.yeefg.mongodb.net/spotify-roulette?retryWrites=true&w=majority'
+const MONGO_URI = process.env.MONGODB_URI || 'mongodb+srv://aarushi:cis197@cluster0.yeefg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'
 
 mongoose.connect(MONGO_URI, {
   useNewUrlParser: true,
@@ -21,7 +21,7 @@ app.use(express.json())
 app.use(session({
   name: 'session',
   keys: ['key1', 'key2'],
-  maxAge: 3600000,
+  maxAge: 360000,
 }))
 
 app.post('/', (req, res) => {
@@ -33,7 +33,7 @@ app.post('/', (req, res) => {
 })
 
 app.use('/account', UserRouter)
-app.use('/api/questions', PlaylistRouter)
+app.use('/api/questions', QuestionRouter)
 
 app.get('/favicon.ico', (req, res) => {
   res.status(404).send()

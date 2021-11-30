@@ -4,20 +4,41 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/asingh125/spotify-roulette.git"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "parcel watch frontend/index.html",
+    "server": "node backend/server.js",
+    "dev": "concurrently --kill-others \"npm run build\" \"npm run server\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/asingh125/spotify-roulette/issues"
+  "devDependencies": {
+    "eslint-plugin-import": "^2.21.2",
+    "eslint-plugin-jsx-a11y": "^6.3.0",
+    "eslint-plugin-react": "^7.20.0",
+    "eslint-plugin-react-hooks": "^4 || ^3 || ^2.3.0 || ^1.7.0"
   },
-  "homepage": "https://github.com/asingh125/spotify-roulette#readme",
   "dependencies": {
-    "passport-spotify": "^2.0.0"
-  }
+    "axios": "^0.24.0",
+    "babel-eslint": "^10.1.0",
+    "concurrently": "^6.4.0",
+    "cookie-session": "^1.4.0",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb": "^18.2.0",
+    "express": "^4.17.1",
+    "mongoose": "^6.0.13",
+    "parcel-bundler": "^1.12.5",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-is": "^17.0.2",
+    "react-router-dom": "^6.0.2",
+    "styled-components": "^5.3.3"
+  },
+  "browserslist": [
+    "last 3 and_chr versions",
+    "last 3 chrome versions",
+    "last 3 opera versions",
+    "last 3 ios_saf versions",
+    "last 3 safari versions"
+  ]
 }
