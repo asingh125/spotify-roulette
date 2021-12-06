@@ -111,7 +111,6 @@ const SplashPage = props => {
   }
 
   const startGame = async () => {
-    //CREATE GAME ROUTE HERE, IT RETURNS ID OF GAME CREATED
     let players = [username]
     const { _id } = await axios.post('/gameapi/create', { players })
     //navigate(`/game/${_id}`)
@@ -127,14 +126,12 @@ const SplashPage = props => {
   }
 
   const joinGame = async () => {
-    //INSERT JOIN GAME REQUEST
     let _id = gamecode
     const { data1 } = await axios.post('/gameapi/join', { _id, username })
     console.log(data1)
     const { data } = await axios.post('gameapi/add_songs_to_game', { _id })
     console.log(data)
     if (data === 'songs added') {
-      // addTwoRandomSongsToDB(_id)
       navigate(`/game/${_id}`)
     } else {
       window.alert(`Error: ${data}. Please try again.`)

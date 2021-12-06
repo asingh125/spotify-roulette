@@ -111,9 +111,6 @@ const SignUp = props => {
         <br/>
         <Link to="/signup">Don't have an account? Sign up</Link>
       </ButtonContainer>
-      
-      
-      
     </>
   )
 }

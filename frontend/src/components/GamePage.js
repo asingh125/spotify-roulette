@@ -34,41 +34,6 @@ const HeaderRight = styled.h2`
   padding: 10px 20vw;
 `
 
-const Label = styled.div`
-  grid-row: 1 / 1;
-  grid-column: 1 / 2;
-  padding: 0;
-  font-size: 1em;
-  position: relative;
-  color: Grey !important;
-  padding: 25px 25px;
-  border-radius: 10px;
-  font-family: Arial;
-  text-align: left;
-`
-
-const InputContainer = styled.div`
-  grid-row: 1 / 1;
-  grid-column: 2 / 2;
-  padding: 0;
-  font-size: 1.5em;
-  position: relative;
-  color: Grey !important;
-  padding: 25px 25px;
-  border-radius: 10px;
-  font-family: Arial;
-`
-
-const ButtonContainer = styled.div`
-  margin: 0 auto !important;
-  margin: 0;
-  position: absolute;
-  padding: 25px 25px;
-  left: 50%;
-  -ms-transform: translate(-50%, -50%);
-  transform: translate(-50%, -50%);
-`
-
 const Button = styled.button`
   padding: 5px 5px;
   font-size: 1em;
@@ -86,10 +51,8 @@ const Button = styled.button`
 `
 
 const GamePage = props => {
-  const { id } = useParams()
+  const { _id } = useParams()
   const [username, setUsername] = useState('')
-  const _id = id
-  const [gamecode, setGameCode] = useState('')
   const [mode, setMode] = useState(1)
   const [loginStatus, setLoginStatus] = useState(false)
 
@@ -132,11 +95,8 @@ const GamePage = props => {
   }
 
   const updateMode = async () => {
-    //INSERT API REQUEST TO GET MODE
     const { data } = await axios.get('/gameapi/mode')
-    //console.log(data)
     setMode(parseInt(data))
-    //console.log(mode)
   }
 
   const displayGameMode = () => {

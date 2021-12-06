@@ -129,8 +129,6 @@ const SignUp = props => {
         <Button onClick={createUser}>Sign Up</Button>
         <Link to="/login">Already have an account? Log in</Link>
       </ButtonContainer>
-      
-      
     </>
   )
 }

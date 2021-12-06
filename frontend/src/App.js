@@ -3,7 +3,6 @@ import axios from 'axios'
 import { BrowserRouter } from "react-router-dom"
 import { Routes } from "react-router-dom"
 import { Route } from "react-router-dom"
-import { Link } from "react-router-dom"
 import SignUp from './components/SignUp'
 import Login from './components/Login'
 import SplashPage from './components/SplashPage'
@@ -18,7 +17,6 @@ const App = () => {
         <Route exact path="/signup" element={<SignUp />} />
         <Route exact path="/login" element={<Login />} />
         <Route exact path="/game/:id" element={<GamePage />} />
-        {/* <Route exact path="/user/:username" element={<UserPage />} /> */}
       </Routes>
     </BrowserRouter>
   )

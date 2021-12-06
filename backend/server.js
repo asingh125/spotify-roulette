@@ -8,14 +8,12 @@ const path = require('path')
 const User = require('./models/user')
 
 var request = require('request'); 
-var cors = require('cors');
 var querystring = require('querystring');
-var cookieParser = require('cookie-parser');
 
 
-var client_id = '57de1779f0c1405ab175a20514bc6c30'; // Your client id
-var client_secret = 'bf16f90326c94a249002086a95c1fda7'; // Your secret
-var redirect_uri = 'http://localhost:3000/callback'; // Your redirect uri
+var client_id = '57de1779f0c1405ab175a20514bc6c30'; // client id
+var client_secret = 'bf16f90326c94a249002086a95c1fda7'; // secret
+var redirect_uri = 'http://localhost:3000/callback'; // redirect uri
 
 
 
@@ -152,4 +150,4 @@ app.get('/', (req, res) => {
   res.send('welcome')
 })
 
-//app.use(errorHandler)
+app.use(errorHandler)
