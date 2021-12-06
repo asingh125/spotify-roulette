@@ -1,24 +1,18 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import axios from 'axios'
-import { useNavigate } from "react-router-dom"
-import QListItem from './QListItem'
-import QuestionList from './QuestionList'
-import QuestionPreview from './QuestionPreview'
-import QuestionPreviewLoggedOut from './QuestionPreviewLoggedOut'
-import QuestionComposer from './QuestionComposer'
+import { useNavigate, useParams } from "react-router-dom"
+import Timer from './Timer'
+import JoinGamePage from './JoinGamePage'
+import PlayGamePage from './PlayGamePage'
+import BetweenPage from './BetweenPage'
+import EndPage from './EndPage'
+import App2 from './SongPlayer'
 
 const GridContainer = styled.div`
   display: grid;
   width: 100vw;
   grid-template-rows: auto 1fr;
-  margin: 0 auto;
-`
-const QPGrid = styled.div`
-  display: grid;
-  grid-template-rows: auto 1fr;
-  grid-template-columns: auto auto;
-  margin: 0 auto;
 `
 
 const HeaderLeft = styled.h2`
@@ -50,7 +44,7 @@ const Label = styled.div`
   padding: 25px 25px;
   border-radius: 10px;
   font-family: Arial;
-  text-align: right;
+  text-align: left;
 `
 
 const InputContainer = styled.div`
@@ -82,27 +76,41 @@ const Button = styled.button`
   left: 0;
   outline: none;
   border: 2px solid Grey !important;
-  background-color: LightSkyBlue !important;
+  background-color: #67e091 !important;
   color: Black
   font-size: 16px;
   text-align: center;
   &:hover {
-    background-color: #b6e1fc !important;
+    background-color: #04bf13 !important;
   }
 `
 
-const HomePage = props => {
-  const [questions, setQuestions] = useState([])
+const GamePage = props => {
+  const { id } = useParams()
   const [username, setUsername] = useState('')
+  const _id = id
+  const [gamecode, setGameCode] = useState('')
+  const [mode, setMode] = useState(1)
   const [loginStatus, setLoginStatus] = useState(false)
-  const [currquestion, setQuestion] = useState('')
-  const [currauthor, setAuthor] = useState('')
-  const [curranswer, setAnswer] = useState('')
-  const [curr_id, setId] = useState(-1)
 
   useEffect(() => {
     updateLoginStatus()
-  }, [])
+    const interval = setInterval(() => {
+      updateMode()
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [mode])
+
+
+  const updateLoginStatus = async () => {
+    const { data } = await axios.post('/account/isLoggedIn', { })
+    if (data.length > 0) {
+      setLoginStatus(true)
+      setUsername(data)
+    } else {
+      setLoginStatus(false)
+    }
+  }
 
   const navigate = useNavigate();
 
@@ -119,67 +127,66 @@ const HomePage = props => {
     navigate("/login");
   }
 
-  const updateLoginStatus = async () => {
-    const { data } = await axios.post('/account/isLoggedIn', { })
-    if (data.length > 0) {
-      setLoginStatus(true)
-      setUsername(data)
-    } else {
-      setLoginStatus(false)
+  const goHome = async () => {
+    navigate("/");
+  }
+
+  const updateMode = async () => {
+    //INSERT API REQUEST TO GET MODE
+    const { data } = await axios.get('/gameapi/mode')
+    //console.log(data)
+    setMode(parseInt(data))
+    //console.log(mode)
+  }
+
+  const displayGameMode = () => {
+    switch(mode) {
+      case 1:
+        return (<JoinGamePage />)
+      case 2:
+        return (<PlayGamePage />)
+      case 3: 
+        return (<BetweenPage />)
+      case 4: 
+        return (<EndPage />)
+      default:
+        return (<></>);
     }
-  }
-
-  const updateQuestions = async () => {
-    const { data } = await axios.get('/api/questions')
-    setQuestions(data)
-  }
-
-  const setPreviewQuestion = (inputs) => {
-    const { questionText, author, answer, _id } = inputs
-    setQuestion(questionText)
-    setAuthor(author)
-    setAnswer(answer)
-    setId(_id)
   }
 
   return (
     <>
       <GridContainer>
-      <HeaderLeft>CampusWire Lite</HeaderLeft>
+      <HeaderLeft>Spotify Roulette</HeaderLeft>
       {loginStatus ? 
         <>
           <HeaderRight>
             Hello {username}
             <Button onClick={logOut}>Log Out</Button>
+            <Button onClick={goHome}>Back to Home</Button>
           </HeaderRight>
-          <QuestionPreview _id={curr_id} author={currauthor} questionText={currquestion} answer={curranswer} updateAnswerPreview={setAnswer} updateQuestions={updateQuestions}/>
         </>
         : 
         <>
           <HeaderRight>
             <Button onClick={goToLogin}>Log In</Button>
+            <Button onClick={goHome}>Back to Home</Button>
           </HeaderRight>
-          <QuestionPreviewLoggedOut _id={curr_id} author={currauthor} questionText={currquestion} answer={curranswer} updateAnswerPreview={setAnswer} updateQuestions={updateQuestions}/>
-
         </>
       }
       </GridContainer>
-
-      
-    <QuestionList onQuestionClick={setPreviewQuestion} qList={questions} updateQuestions={updateQuestions} />
-
-    {loginStatus ? 
-      <QuestionComposer userName={username} updateQuestions={updateQuestions}/>
-      : 
-      <>
-      </>
-    }
-
+      {loginStatus ? 
+        <>
+          {displayGameMode()}
+        </>
+        : 
+        <>
+          <p>You need to log into an account to participate in a game.</p>
+        </>
+      }
     </>
   )
-
-
  
 }
 
-export default HomePage
+export default GamePage

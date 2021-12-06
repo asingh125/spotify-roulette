@@ -17,6 +17,7 @@ const Header = styled.h2`
   font-family: Arial;
   text-align: center;
   margin: 0 auto;
+  padding: 5px;
 `
 
 const Label = styled.div`
@@ -61,28 +62,30 @@ const Button = styled.button`
   left: 0;
   outline: none;
   border: 2px solid Grey !important;
-  background-color: LightSkyBlue !important;
+  background-color: #67e091 !important;
   color: Black
   font-size: 16px;
   text-align: center;
   &:hover {
-    background-color: #b6e1fc !important;
+    background-color: #04bf13 !important;
   }
 `
 
 const SignUp = props => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [playlist, setPlaylist] = useState('')
 
   const navigate = useNavigate();
 
   const createUser = async () => {
-    const { data } = await axios.post('/account/signup', { username, password })
+    const { data } = await axios.post('/account/signup', { username, password, playlist })
     if (data === 'user signed up') {
+      logIn()
     } else {
+      console.log(data)
       window.alert('Error signing in. Please try again.');
     }
-    logIn()
   }
 
   const logIn = async () => {
@@ -108,6 +111,13 @@ const SignUp = props => {
         <Label>Password</Label>
         <InputContainer>
           <input value={password} onChange={e => setPassword(e.target.value)} type="text" />
+        </InputContainer>
+      </GridContainer>
+
+      <GridContainer>
+        <Label>Playlist Link</Label>
+        <InputContainer>
+          <input value={playlist} onChange={e => setPlaylist(e.target.value)} type="text" />
         </InputContainer>
       </GridContainer>
 

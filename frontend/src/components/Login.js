@@ -61,12 +61,12 @@ const Button = styled.button`
   left: 0;
   outline: none;
   border: 2px solid Grey !important;
-  background-color: LightSkyBlue !important;
+  background-color: #67e091 !important;
   color: Black
   font-size: 16px;
   text-align: center;
   &:hover {
-    background-color: #b6e1fc !important;
+    background-color: #04bf13 !important;
   }
 `
 

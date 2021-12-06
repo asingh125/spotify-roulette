@@ -5,11 +5,16 @@ const User = require('../models/user')
 const router = express.Router()
 
 router.post('/signup', async (req, res, next) => {
-  const { username, password } = req.body
+  const { username, password, playlist } = req.body
   try {
     const olduser = await User.findOne({ username })
     if (!olduser) {
-      const newuser = await User.create({ username, password })
+      const score = 0
+      const answer = ''
+      const token = 'default'
+      const urlArr = playlist.split('/')
+      const playlistID = urlArr[urlArr.length - 1]
+      const newuser = await User.create({ token, username, password, playlistID, score, answer })
       res.send('user signed up')
     } else {
       res.send('this user already exists')
@@ -52,6 +57,10 @@ router.post('/isLoggedIn', async (req, res) => {
   } else {
     res.send('')
   }
+})
+
+router.get('/get_access_token', async (req, res) => {
+  res.send(String(req.session.spotify_access_token))
 })
 
 module.exports = router
