@@ -59,7 +59,7 @@ router.post('/create', isAuthenticated, async (req, res, next) => {
         songs.push(string1)
         songs.push(string2)
         await Game.updateOne({ _id }, { songs })
-        console.log(`http://localhost:3000/${_id.toString()}`)
+        console.log(`http://localhost:3000/game/${_id.toString()}`)
         res.send(_id.toString())
       } else {
         res.send(_id.toString())
