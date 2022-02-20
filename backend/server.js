@@ -11,14 +11,14 @@ var request = require('request');
 var querystring = require('querystring');
 
 
-var client_id = '57de1779f0c1405ab175a20514bc6c30'; // client id
-var client_secret = 'bf16f90326c94a249002086a95c1fda7'; // secret
+var client_id = ''; // put client id here 
+var client_secret = ''; // put client secret here 
 var redirect_uri = 'http://localhost:3000/callback'; // redirect uri
 
 
 
 const app = express()
-const MONGO_URI = process.env.MONGODB_URI || 'mongodb+srv://aarushi:cis197@cluster0.yeefg.mongodb.net/spotify-roulette?retryWrites=true&w=majority'
+const MONGO_URI = process.env.MONGODB_URI || //put MongoDB cluster link here
 
 mongoose.connect(MONGO_URI, {
   useNewUrlParser: true,
