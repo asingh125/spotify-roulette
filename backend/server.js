@@ -3,7 +3,6 @@ const express = require('express')
 const session = require('cookie-session')
 const UserRouter = require('./routes/account')
 const GameRouter = require('./routes/gameapi')
-const errorHandler = require('./middlewares/errorHandler')
 const path = require('path')
 const User = require('./models/user')
 
@@ -18,7 +17,7 @@ var redirect_uri = 'http://localhost:3000/callback'; // redirect uri
 
 
 const app = express()
-const MONGO_URI = process.env.MONGODB_URI || 'mongodb+srv://aarushi:cis197@cluster0.yeefg.mongodb.net/spotify-roulette?retryWrites=true&w=majority'
+const MONGO_URI = process.env.MONGODB_URI || 'mongodb+srv://aarushi:cis197@cluster0.yeefg.mongodb.net/?retryWrites=true&w=majority'//'mongodb+srv://aarushis:SinghGuest22@spotifyroulette.a4mbl.mongodb.net/?retryWrites=true&w=majority' //'mongodb+srv://aarushi:cis197@cluster0.yeefg.mongodb.net/spotify-roulette?retryWrites=true&w=majority'
 
 mongoose.connect(MONGO_URI, {
   useNewUrlParser: true,
@@ -149,5 +148,3 @@ app.listen(3000, () => {
 app.get('/', (req, res) => {
   res.send('welcome')
 })
-
-app.use(errorHandler)

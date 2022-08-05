@@ -1,97 +1,144 @@
 const express = require('express')
-const isAuthenticated = require('../middlewares/isAuthenticated')
+const request = require('request')
 const User = require('../models/user')
 const Game = require('../models/game')
-const request = require('request'); 
+
+/* eslint-disable */
 
 const router = express.Router()
 
-router.post('/create', isAuthenticated, async (req, res, next) => {
-  const { players } = req.body
+var client_id = '57de1779f0c1405ab175a20514bc6c30';
+var client_secret = 'bf16f90326c94a249002086a95c1fda7';
+
+var authOptions = {
+  url: 'https://accounts.spotify.com/api/token',
+  headers: {
+    'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64'))
+  },
+  form: {
+    grant_type: 'client_credentials'
+  },
+  json: true
+};
+
+// var authOptions = {
+//   url: 'https://accounts.spotify.com/api/token',
+//   form: {
+//     grant_type: 'authorization_code'
+//   },
+//   headers: {
+//     'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64'))
+//   },
+//   json: true
+// }
+
+router.post('/create', async (req, res, next) => {
   const mode = 1
   const round = 0
-  const answer = ""
+  const answer = ''
   const songs = []
   const songOrder = []
-  const song = ""
+  const song = ''
   try {
-    const thegame = await Game.create({ players, mode, round, answer, songs, songOrder, song })
-    
-    //get the playlist songs and save them in items
-    const username = req.session.username
-    const theuser = await User.findOne({ username })
-    const playlistID = theuser.playlistID
-    const access_token = theuser.token
-    const url = `https://api.spotify.com/v1/playlists/${playlistID}/tracks`
-    var options = {
-      url: url,
-      headers: { 'Authorization': 'Bearer ' + access_token },
-      json: true
-    };
-    let items = []
-    request.get(options, async function(error, response, body) {
-      items = body.items
-      
-      const getRandomInt = (max) => {
-        return Math.floor(Math.random() * max);
+    var token = ''
+    request.post(authOptions, function(error, response, body) {
+      if (!error && response.statusCode === 200) {
+        token = body.access_token
       }
-
-      //get 2 random songs
-      let s1 = getRandomInt(items.length)
-      let s2 = getRandomInt(items.length)
-      while (s2 === s1) {
-        s2 = getRandomInt(items.length)
-      }
-      const song1 = items[s1].track
-      const song2 = items[s2].track
-
-      //save strings with song info
-      const artists1 = song1.artists
-      const string1 = `${username}|${song1.href}|${song1.name}|${artists1[0].name}`
-      const artists2 = song2.artists
-      const string2 = `${username}|${song2.href}|${song2.name}|${artists2[0].name}`
-
-      let _id = thegame._id
+      access_token = token
       
-      if (thegame.mode === 1) {
-        //add the songs to the game entry
-        const songs = thegame.songs 
-        songs.push(string1)
-        songs.push(string2)
-        await Game.updateOne({ _id }, { songs })
-        console.log(`http://localhost:3000/game/${_id.toString()}`)
-        res.send(_id.toString())
-      } else {
-        res.send(_id.toString())
-      }
-      
-    });
+      //get the playlist songs and save them in items
+      const { username, playlistID } = req.body
+      // const username = req.session.username
+      // const theuser = await User.findOne({ username })
+      // const playlistID = theuser.playlistID
+      // const access_token = theuser.token
+      console.log(playlistID)
+      const url = `https://api.spotify.com/v1/playlists/${playlistID}/tracks`
+      var options = {
+        url: url,
+        headers: { 'Authorization': 'Bearer ' + access_token },
+        json: true
+      };
+      let items = []
+      request.get(options, async function(error, response, body) {
+        // console.log(body)
+        items = body.items
+        // console.log(items)
+        // console.log(error)
+        // console.log(response)
+        
+        const getRandomInt = (max) => {
+          return Math.floor(Math.random() * max);
+        }
+
+        //get 2 random songs
+        let s1 = getRandomInt(items.length)
+        let s2 = getRandomInt(items.length)
+        while (s2 === s1) {
+          s2 = getRandomInt(items.length)
+        }
+        const song1 = items[s1].track
+        const song2 = items[s2].track
+
+        //save strings with song info
+        const artists1 = song1.artists
+        const string1 = `${username}|${song1.href}|${song1.name}|${artists1[0].name}`
+        const artists2 = song2.artists
+        const string2 = `${username}|${song2.href}|${song2.name}|${artists2[0].name}`
+
+        console.log(string1)
+        console.log(string2)
+
+        players = [username]
+        Game.create({ players, mode, round, answer, songs, songOrder, song }).then(thegame => {        
+          if (thegame.mode === 1) {
+            //add the songs to the game entry
+            const songs = thegame.songs 
+            const _id = thegame._id
+            songs.push(string1)
+            songs.push(string2)
+            Game.updateOne({ _id }, { songs }).then(result => {
+              // console.log(`http://localhost:3000/game/${_id.toString()}`)
+              req.session.username = username
+              res.send(_id.toString())
+            })
+          } else {
+            res.send(_id.toString())
+          }
+        })
+      })
+    })
     
   } catch (err) {
+    console.log(err)
     next(err)
   }
 })
 
-router.post('/join', isAuthenticated, async (req, res, next) => {
+router.post('/join', async (req, res, next) => {
   try {
     const { _id, username } = req.body
     const thegame = await Game.findOne({ _id })
-    if (!req.session.username) {
-      res.send('not logged in')
-    } else if (!thegame) {
+    // if (!req.session.username) {
+    //   res.send('not logged in')
+    // } else 
+    if (!thegame) {
       res.send('game does not exist')
     } else {
       const players = thegame.players
       players.push(username)
       const newgame = await Game.updateOne({ _id }, { players })
+      req.session.username = username
       res.send('game joined')
     }
   } catch (err) {
+    console.log('WRONG PATH')
     next(err)
   }
 })
 
-router.get('/players', isAuthenticated, async (req, res, next) => {
+router.get('/players', async (req, res, next) => {
   const idArray = req.headers.referer.split('/')
   const _id = idArray[idArray.length - 1]
   try {
@@ -102,26 +149,27 @@ router.get('/players', isAuthenticated, async (req, res, next) => {
   }
 })
 
-router.get('/scores', isAuthenticated, async (req, res, next) => {
+router.get('/scores', async (req, res, next) => {
   const idArray = req.headers.referer.split('/')
   const _id = idArray[idArray.length - 1]
   try {
     const thegame = await Game.findOne({ _id })
     const players = thegame.players
-    let scoreArr = []
-    for (let i = 0; i < players.length; ++i) {
-      let player = players[i]
-      const username = player
-      let theuser = await User.findOne({ username })
-      scoreArr.push(theuser.score)
-    }
-    res.send(scoreArr.toString())
+    res.send(thegame.scores.toString())
+    // let scoreArr = []
+    // for (let i = 0; i < players.length; ++i) {
+    //   let player = players[i]
+    //   const username = player
+    //   let theuser = await User.findOne({ username })
+    //   scoreArr.push(theuser.score)
+    // }
+    // res.send(scoreArr.toString())
   } catch (err) {
     next(err)
   }
 })
 
-router.post('/startgame', isAuthenticated, async (req, res, next) => {
+router.post('/startgame', async (req, res, next) => {
   try {
     const idArray = req.headers.referer.split('/')
     const _id = idArray[idArray.length - 1]
@@ -129,15 +177,17 @@ router.post('/startgame', isAuthenticated, async (req, res, next) => {
     const round = 1
     const thegame = await Game.findOne({ _id })
     if (thegame.mode === 1) {
-      //set all answers to empty strings to start
+
+      //initialize numPlayers, scores, and  guesses to correct length
       const players = thegame.players
-      for (let i = 0; i < players.length; ++i) {
-        let player = players[i]
-        const username = player
-        const answer = ""
-        const score = 0
-        await User.updateOne({ username }, { answer, score })
+      const numPlayers = players.length
+      let guesses = []
+      let scores = []
+      for (let i = 0; i < numPlayers; ++i) {
+        guesses.push('')
+        scores.push(0)
       }
+      await Game.updateOne({ _id }, { numPlayers, guesses, scores })
 
       //come up with a random order to play the songs in
       function shuffleArray(array) {
@@ -170,7 +220,7 @@ router.post('/startgame', isAuthenticated, async (req, res, next) => {
   }
 })
 
-router.get('/mode', isAuthenticated, async (req, res, next) => {
+router.get('/mode', async (req, res, next) => {
   const idArray = req.headers.referer.split('/')
   const _id = idArray[idArray.length - 1]
   try {
@@ -181,7 +231,7 @@ router.get('/mode', isAuthenticated, async (req, res, next) => {
   }
 })
 
-router.get('/song', isAuthenticated, async (req, res, next) => {
+router.get('/song', async (req, res, next) => {
   const idArray = req.headers.referer.split('/')
   const _id = idArray[idArray.length - 1]
   try {
@@ -192,7 +242,7 @@ router.get('/song', isAuthenticated, async (req, res, next) => {
   }
 })
 
-router.get('/roundnum', isAuthenticated, async (req, res, next) => {
+router.get('/roundnum', async (req, res, next) => {
   const idArray = req.headers.referer.split('/')
   const _id = idArray[idArray.length - 1]
   try {
@@ -203,41 +253,60 @@ router.get('/roundnum', isAuthenticated, async (req, res, next) => {
   }
 })
 
-router.post('/submitanswer', isAuthenticated, async (req, res, next) => {
+// function to help find index of player in players list
+// const indexOf = (name, list) => {
+//   for (let i = 0; i < list.length; i++) {
+//     if list.get(i) === name
+//   }
+// }
+
+router.post('/submitanswer', async (req, res, next) => {
   try {
     let { answer } = req.body
     const username = req.session.username
+    console.log(`The persons username is ${username}`)
+    // console.log('hi whats up')
+    // console.log(username)
     const idArray = req.headers.referer.split('/')
     const _id = idArray[idArray.length - 1]
     const thegame = await Game.findOne({ _id })
     const correctAnswer = thegame.answer
     if (thegame.mode === 2) {
-      //update our user's answer and score
-      const ouruser = await User.findOne({ username })
-      const oldScore = ouruser.score
-      let score = oldScore
+      // find our user's index in the list
+      let userIndex = thegame.players.indexOf(username)
+      console.log(`The persons index is ${userIndex}`)
+
+      // update their spot in guesses array
+      let guesses = thegame.guesses
+      guesses[userIndex] = answer
+
+      // update their spot in scores array
+      let scores = thegame.scores
+      let score = scores[userIndex]
       if (answer === correctAnswer) {
-        score = score + 1
-      }
-      await User.updateOne({ username }, { answer, score })
-
-      //check to see if everyone else has submitted answers
-      const players = thegame.players
-      let allOtherAnswers = true
-      for (let i = 0; i < players.length; ++i) {
-        let player = players[i]
-        let username = player
-        let otherPlayer = await User.findOne({ username })
-        if (otherPlayer.answer.length === 0) {
-          allOtherAnswers = false
-        }
+        scores[userIndex] = score + 1
       }
 
-      //if all other answers are in, change the mode to 3 (between rounds mode)
-      if (allOtherAnswers) {
-        const mode = 3
-        await Game.updateOne({ _id }, { mode })
-      }
+      // push the updates
+      await Game.updateOne({ _id }, { guesses, scores })
+
+      // //check to see if everyone else has submitted answers
+      // const players = thegame.players
+      // let allOtherAnswers = true
+      // for (let i = 0; i < players.length; ++i) {
+      //   let player = players[i]
+      //   let username = player
+      //   let otherPlayer = await User.findOne({ username })
+      //   if (otherPlayer.answer.length === 0) {
+      //     allOtherAnswers = false
+      //   }
+      // }
+
+      // //if all other answers are in, change the mode to 3 (between rounds mode)
+      // if (allOtherAnswers) {
+      //   const mode = 3
+      //   await Game.updateOne({ _id }, { mode })
+      // }
 
       res.send('answer submitted')
     } else {
@@ -248,7 +317,7 @@ router.post('/submitanswer', isAuthenticated, async (req, res, next) => {
   }
 })
 
-router.post('/nextround', isAuthenticated, async (req, res, next) => {
+router.post('/nextround', async (req, res, next) => {
   try {
     const idArray = req.headers.referer.split('/')
     const _id = idArray[idArray.length - 1]
@@ -292,7 +361,7 @@ router.post('/nextround', isAuthenticated, async (req, res, next) => {
   }
 })
 
-router.post('/end', isAuthenticated, async (req, res) => {
+router.post('/end', async (req, res) => {
   const idArray = req.headers.referer.split('/')
   const _id = idArray[idArray.length - 1]
   try {
@@ -312,7 +381,7 @@ router.post('/isLoggedIn', async (req, res) => {
   }
 })
 
-router.post('/add_token_to_user', isAuthenticated, async (req, res) => {
+router.post('/add_token_to_user', async (req, res) => {
   const username = req.session.username
   const token = req.session.spotify_access_token
   const theuser = await User.updateOne({ username }, { token })
@@ -336,57 +405,74 @@ router.post('/get_playlist_songs', async (req, res) => {
   });
 })
 
-router.post('/add_songs_to_game', isAuthenticated, async (req, res, next) => {
+router.post('/add_songs_to_game', async (req, res, next) => {
   try {
-    //get the playlist songs and save them in items
-    const username = req.session.username
-    const theuser = await User.findOne({ username })
-    const playlistID = theuser.playlistID
-    const access_token = theuser.token
-    const url = `https://api.spotify.com/v1/playlists/${playlistID}/tracks`
-    var options = {
-      url: url,
-      headers: { 'Authorization': 'Bearer ' + access_token },
-      json: true
-    };
-    let items = []
-    request.get(options, async function(error, response, body) {
-      items = body.items
-      
-      const getRandomInt = (max) => {
-        return Math.floor(Math.random() * max);
+    var token = ''
+    request.post(authOptions, function(error, response, body) {
+      if (!error && response.statusCode === 200) {
+        token = body.access_token
       }
-
-      //get 2 random songs
-      let s1 = getRandomInt(items.length)
-      let s2 = getRandomInt(items.length)
-      while (s2 === s1) {
-        s2 = getRandomInt(items.length)
-      }
-      const song1 = items[s1].track
-      const song2 = items[s2].track
-
-      //save strings with song info
-      const artists1 = song1.artists
-      const string1 = `${username}|${song1.href}|${song1.name}|${artists1[0].name}`
-      const artists2 = song2.artists
-      const string2 = `${username}|${song2.href}|${song2.name}|${artists2[0].name}`
-
-      let { _id } = req.body
-      const thegame = await Game.findOne({ _id })
+      access_token = token
       
-      if (thegame.mode === 1) {
-        //add the songs to the game entry
-        const songs = thegame.songs 
-        songs.push(string1)
-        songs.push(string2)
-        await Game.updateOne({ _id }, { songs })
-        res.send('songs added')
-      } else {
-        res.send('wrong mode')
-      }
-      
-    });
+      //get the playlist songs and save them in items
+      const { username, playlistID, _id } = req.body
+      console.log('username: ' + username)
+      console.log('playlist: ' + playlistID)
+      // const username = req.session.username
+      // const theuser = await User.findOne({ username })
+      // const playlistID = theuser.playlistID
+      // const access_token = theuser.token
+      const url = `https://api.spotify.com/v1/playlists/${playlistID}/tracks`
+      var options = {
+        url: url,
+        headers: { 'Authorization': 'Bearer ' + access_token },
+        json: true
+      };
+      let items = []
+      request.get(options, async function(error, response, body) {
+        items = body.items
+        // console.log(items)
+        // console.log(error)
+        // console.log(response)
+        
+        const getRandomInt = (max) => {
+          return Math.floor(Math.random() * max);
+        }
+
+        //get 2 random songs
+        let s1 = getRandomInt(items.length)
+        let s2 = getRandomInt(items.length)
+        while (s2 === s1) {
+          s2 = getRandomInt(items.length)
+        }
+        const song1 = items[s1].track
+        const song2 = items[s2].track
+
+        //save strings with song info
+        const artists1 = song1.artists
+        const string1 = `${username}|${song1.href}|${song1.name}|${artists1[0].name}`
+        const artists2 = song2.artists
+        const string2 = `${username}|${song2.href}|${song2.name}|${artists2[0].name}`
+
+        console.log(string1)
+        console.log(string2)
+
+        players = [username]
+        const thegame = await Game.findOne({ _id })
+        if (thegame.mode === 1) {
+          //add the songs to the game entry
+          const songs = thegame.songs 
+          songs.push(string1)
+          songs.push(string2)
+          Game.updateOne({ _id }, { songs }).then(result => {
+            res.send(_id.toString())
+          })
+        } else {
+          res.send(_id.toString())
+        }
+      })
+    })
+    
 
   } catch (err) {
     next(err)
