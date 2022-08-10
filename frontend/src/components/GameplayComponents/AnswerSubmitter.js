@@ -67,6 +67,22 @@ const AnswerSubmitter = props => {
     setRound(parseInt(data))
   }
 
+  const clickRadio = player => {
+     
+    const outputFunction = input => {
+      setSelected(player)
+      // console.log('THE PLAYER IS ')
+      // console.log(player)
+      // console.log('THE SELECTED IS')
+      // console.log(selected)
+    }
+    return outputFunction
+    // console.log('THE PLAYER IS ')
+    // console.log(player)
+    // console.log('THE SELECTED IS')
+    // console.log(selected)
+  }
+
   const displayPlayerOptions = () => {
     let radios = []
     for (let i = 0; i < players.length; ++i) {
@@ -77,7 +93,7 @@ const AnswerSubmitter = props => {
         id={`radio-${i}}`}
         label={player}
         name='radios'
-        onClick={ () => {setSelected(player)} }
+        onClick={ clickRadio(player) }
       />
       radios.push(radio)
       // let listOption = <> <ListGroup.Item>{player}</ListGroup.Item> </>
@@ -93,11 +109,13 @@ const AnswerSubmitter = props => {
   }
 
   const submitAnswer = () => {
-    axios.post('/gameapi/submitanswer', { selected }).then(result => {
+    let answer = selected
+    axios.post('/gameapi/submitanswer', { answer }).then(result => {
       if (result.data === 'answer submitted') {
         setSubmitted(true)
         console.log('SUBMITTED the answer')
       } else {
+        console.log(result.data)
         window.alert('Error submitting answer. Please try again.');
       }
     })

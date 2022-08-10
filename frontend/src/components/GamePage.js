@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import axios from 'axios'
@@ -11,34 +13,37 @@ import PlayGamePage from './PlayGamePage'
 import BetweenPage from './BetweenPage'
 import EndPage from './EndPage'
 import App2 from './SongPlayer'
+import ModeUpdater from './Updaters/ModeUpdater'
+import SongUpdater from './Updaters/SongUpdater'
+import PlayersUpdater from './Updaters/PlayersUpdater'
+
 
 const GamePage = props => {
   const { _id } = useParams()
   const [username, setUsername] = useState('')
   const [mode, setMode] = useState(1)
+  const [song, setSong] = useState('')
+  const [players, setPlayers] = useState([])
 
-  const updateMode = async () => {
-    const { data } = axios.get('/gameapi/mode').then(result => {
-      setMode(parseInt(result.data, 10))
-    })
-  }
+  // const updateMode = async () => {
+  //   const { data } = axios.get('/gameapi/mode').then(result => {
+  //     return parseInt(result.data, 10)
+  //   })
+  // }
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      updateMode()
-    }, 1000)
-    return () => clearInterval(interval)
-  }, [mode])
+  // const updateSong = async () => {
+  //   const { data } = axios.get('/gameapi/songID').then(result => {
+  //     return result.data
+  //   })
+  // }
 
-  const updateLoginStatus = async () => {
-    // const { data } = await axios.post('/account/isLoggedIn', { })
-    // if (data.length > 0) {
-    //   setLoginStatus(true)
-    //   setUsername(data)
-    // } else {
-    //   setLoginStatus(false)
-    // }
-  }
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     // updateMode()
+  //     // updateSong()
+  //   }, 10000)
+  //   return () => clearInterval(interval)
+  // }, [mode, song])
 
   const navigate = useNavigate()
 
@@ -51,11 +56,11 @@ const GamePage = props => {
       case 1:
         return (<JoinGamePage />)
       case 2:
-        return (<PlayGamePage />)
+        return (<PlayGamePage song={song} players={players}/>)
       case 3:
-        return (<BetweenPage />) //If playerAdvancedToNextRound, then display between, else stay on oldie
+        return (<BetweenPage players={players}/>) //If playerAdvancedToNextRound, then display between, else stay on oldie
       case 4:
-        return (<EndPage />)
+        return (<EndPage players={players}/>)
       default:
         return (<></>)
     }
@@ -65,21 +70,20 @@ const GamePage = props => {
     <>
       <Navbar>
         <Container>
-          <Navbar.Brand href="#home"> Spotify Roulette</Navbar.Brand>
+          <Navbar.Brand href="/"> Spotify Roulette</Navbar.Brand>
           <Navbar.Toggle />
           <Navbar.Collapse className="justify-content-end" />
         </Container>
       </Navbar>
 
-      {/* <Container fluid="md">
-        <Row>
-          <Col>
-            <Card className="rounded p-4 p-sm-3"> */}
-              {displayGameMode()}
-            {/* </Card>
-          </Col>
-        </Row>
-      </Container> */}
+      {displayGameMode()}
+      <ModeUpdater setState={setMode} initial={mode}/>
+      <SongUpdater setState={setSong} initial={song}/>
+      <PlayersUpdater setState={setPlayers} initial={players}/>
+      The mode is: {mode}
+      <br />
+      The players are: {players}
+
 
     </>
   )

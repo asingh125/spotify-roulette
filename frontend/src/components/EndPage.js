@@ -1,40 +1,23 @@
+/* eslint-disable */
+
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import axios from 'axios'
 import { useNavigate } from "react-router-dom"
+import ScoreList from './GameplayComponents/ScoreList'
 import { ProgressBar, Button, Card, Nav, Form, Navbar, Container, Row, Col, ListGroup, Badge } from 'react-bootstrap'
 
-
-const GridContainer = styled.div`
-  display: grid;
-  width: 100vw;
-  grid-template-rows: auto 1fr;
-`
-
-const Button2 = styled.button`
-  padding: 5px 5px;
-  font-size: 1em;
-  position: relative;
-  left: 0;
-  outline: none;
-  border: 2px solid Grey !important;
-  background-color: #67e091 !important;
-  color: Black
-  font-size: 16px;
-  text-align: center;
-  &:hover {
-    background-color: #04bf13 !important;
-  }
-`
-
 const EndPage = props => {
+  // players = props.players
   const [players, setPlayers] = useState([])
   const [scores, setScores] = useState([])
 
+  // const players = await axios.get('/gameapi/players')
+
   useEffect(() => {
     const interval = setInterval(() => {
-      // updatePlayers()
-      // updatesScores()
+      updatePlayers()
+      updateScores()
     }, 500)
     return () => clearInterval(interval)
   }, [players])
@@ -46,10 +29,11 @@ const EndPage = props => {
     setPlayers(d)
   }
 
-  const updatesScores = async () => {
+  const updateScores = async () => {
     //INSERT GET REQUEST FOR PLAYERS IN THE GAME
     const { data } = await axios.get('/gameapi/scores')
-    const d = data.split(',')
+    // console.log(`this is the data: ${data}`)
+    const d = String(data).split(',')
     setScores(d)
   }
 
@@ -85,10 +69,29 @@ const EndPage = props => {
 
   const returnPlayersAndScores = () => {
     const ret = []
+    // itemsArray.sort(function(a, b){  
+    //   return sortingArr.indexOf(a) - sortingArr.indexOf(b);
+    // });
+
+    // console.log(players)
+    // console.log(scores)
+
     for (let i = 0; i < players.length; ++i) {
-      ret.push(<> <h3>{players[i]}:  {scores[i]}</h3> </>)
+      ret.push(       
+        <ListGroup.Item as="li">
+          {players[i]} {' '}
+          <Badge variant="primary" pill >
+            {scores[i]}
+          </Badge>
+        </ListGroup.Item> 
+      )
     }
-    return ret
+
+    return (
+      <ListGroup as="ol" numbered >
+        {ret}
+      </ListGroup>
+    )
   }
 
   const goHome = async () => {
@@ -97,16 +100,6 @@ const EndPage = props => {
 
   return ( 
     <>
-        <Navbar>
-      <Container>
-        <Navbar.Brand href="#home"> Spotify Roulette</Navbar.Brand>
-        <Navbar.Toggle />
-        <Navbar.Collapse className="justify-content-end">
-          <Nav.Link href="">Signed in as: Aarushi</Nav.Link>
-          <Button>Log out</Button>
-        </Navbar.Collapse>
-      </Container>
-    </Navbar>
 
     <Container fluid="md">
   <Row>
@@ -119,28 +112,9 @@ const EndPage = props => {
       
       <Card.Title>Game Over! Final Scores:</Card.Title>
       <Card.Body>
-      <ListGroup as="ol" numbered >
-        <ListGroup.Item as="li">
-          Ishaan {' '}
-          <Badge variant="primary" pill >
-            5
-          </Badge>
-        </ListGroup.Item>
-        <ListGroup.Item as="li">
-          Sarah {' '}
-          <Badge variant="primary" pill>
-            3
-          </Badge>
-        </ListGroup.Item>
-        <ListGroup.Item as="li">
-          Aarushi {' '}
-          <Badge variant="primary" pill>
-            2
-          </Badge>
-        </ListGroup.Item>
-        </ListGroup>
+        <ScoreList />
         <br/>
-        <Button>Play again</Button>
+        <Button>Play again with same players</Button>
       </Card.Body>
     </Form>
     </Card>

@@ -1,7 +1,6 @@
 /* eslint-disable */
 
 import React, { useState, useEffect } from 'react'
-import styled from 'styled-components'
 import axios from 'axios'
 import { useNavigate } from "react-router-dom"
 import { ProgressBar, Button, Card, Nav, Form, Navbar, Container, Row, Col, ListGroup } from 'react-bootstrap'

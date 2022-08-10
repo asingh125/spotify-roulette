@@ -53,7 +53,7 @@ router.post('/create', async (req, res, next) => {
       // const theuser = await User.findOne({ username })
       // const playlistID = theuser.playlistID
       // const access_token = theuser.token
-      console.log(playlistID)
+      console.log(`the playlist ID is : ${playlistID}`)
       const url = `https://api.spotify.com/v1/playlists/${playlistID}/tracks`
       var options = {
         url: url,
@@ -155,6 +155,7 @@ router.get('/scores', async (req, res, next) => {
   try {
     const thegame = await Game.findOne({ _id })
     const players = thegame.players
+    // console.log(`these are the scores ${thegame.scores}`)
     res.send(thegame.scores.toString())
     // let scoreArr = []
     // for (let i = 0; i < players.length; ++i) {
@@ -242,6 +243,28 @@ router.get('/song', async (req, res, next) => {
   }
 })
 
+router.get('/songID', async (req, res, next) => {
+  const idArray = req.headers.referer.split('/')
+  const _id = idArray[idArray.length - 1]
+  try {
+    const thegame = await Game.findOne({ _id })
+    const songString = thegame.song.toString()
+    if (songString.length > 0) {
+      // console.log(`the song string is ${songString}`)
+      const songLink = songString.split('|')[1]
+      // console.log(`the song link is ${songLink}`)
+      const trackIDArr = songLink.split('/')
+      const trackID = trackIDArr[trackIDArr.length - 1]
+      // console.log(trackID)
+      res.send(trackID)
+    } else {
+      res.send('no song set')
+    }
+  } catch (err) {
+    next(err)
+  }
+})
+
 router.get('/roundnum', async (req, res, next) => {
   const idArray = req.headers.referer.split('/')
   const _id = idArray[idArray.length - 1]
@@ -263,74 +286,97 @@ router.get('/roundnum', async (req, res, next) => {
 router.post('/submitanswer', async (req, res, next) => {
   try {
     let { answer } = req.body
+    // console.log(`THE ANSWER IS: ${answer}`)
     const username = req.session.username
-    console.log(`The persons username is ${username}`)
+    // console.log(`The persons username is ${username}`)
     // console.log('hi whats up')
     // console.log(username)
     const idArray = req.headers.referer.split('/')
     const _id = idArray[idArray.length - 1]
-    const thegame = await Game.findOne({ _id })
-    const correctAnswer = thegame.answer
-    if (thegame.mode === 2) {
-      // find our user's index in the list
-      let userIndex = thegame.players.indexOf(username)
-      console.log(`The persons index is ${userIndex}`)
+    // console.log('REACHED HERE')
+    let thegame = Game.findOne({ _id }).then( result => {
+      let thegame = result
+      const correctAnswer = thegame.answer
+      // console.log('THE GAMES MODE IS: ')
+      if (thegame.mode === 2) {
+        // find our user's index in the list
+        let userIndex = thegame.players.indexOf(username)
+        // console.log(`The persons index is ${userIndex}`)
+  
+        // update their spot in guesses array
+        let guesses = thegame.guesses
+        guesses[userIndex] = answer
+        // await Game.updateOne({ _id }, { guesses })
+  
+  
+        // update their spot in scores array
+        let scores = thegame.scores
+        let score = scores[userIndex]
+        if (answer === correctAnswer) {
+          scores[userIndex] = score + 1
+        }
+  
+        // push the updates
+        Game.updateOne({ _id }, { guesses, scores }).then( _ => {
 
-      // update their spot in guesses array
-      let guesses = thegame.guesses
-      guesses[userIndex] = answer
-
-      // update their spot in scores array
-      let scores = thegame.scores
-      let score = scores[userIndex]
-      if (answer === correctAnswer) {
-        scores[userIndex] = score + 1
+          Game.findOne({ _id }).then( result => {
+            let thegame = result
+            // console.log('PRINTINT THE GAME')
+            // console.log(thegame)
+            // console.log(thegame.guesses)
+            // console.log(thegame.scores)
+            let players = thegame.players
+            let guesses = thegame.guesses
+            console.log(`The guesses are ${guesses}`)
+            // console.log(thegame.players)
+            //check to see if everyone else has submitted answers
+            // console.log(players)
+            let allOtherAnswers = true
+            for (let i = 0; i < players.length; ++i) {
+              let otherPlayerIndex = thegame.players.indexOf(players[i])
+              // console.log(otherPlayerIndex)
+              // console.log(guesses)
+              if (guesses[otherPlayerIndex].length === 0) {
+                allOtherAnswers = false
+              }
+            }
+      
+            //if all other answers are in, change the mode to 3 (between rounds mode)
+            if (allOtherAnswers) {
+              const mode = 3
+              Game.updateOne({ _id }, { mode }).then( result => {
+                console.log('answer has been submitted')
+                res.send('answer submitted')
+              })
+            }
+          })
+        })
+    
+      } else {
+        res.send('wrong mode')
       }
+      })
 
-      // push the updates
-      await Game.updateOne({ _id }, { guesses, scores })
-
-      // //check to see if everyone else has submitted answers
-      // const players = thegame.players
-      // let allOtherAnswers = true
-      // for (let i = 0; i < players.length; ++i) {
-      //   let player = players[i]
-      //   let username = player
-      //   let otherPlayer = await User.findOne({ username })
-      //   if (otherPlayer.answer.length === 0) {
-      //     allOtherAnswers = false
-      //   }
-      // }
-
-      // //if all other answers are in, change the mode to 3 (between rounds mode)
-      // if (allOtherAnswers) {
-      //   const mode = 3
-      //   await Game.updateOne({ _id }, { mode })
-      // }
-
-      res.send('answer submitted')
-    } else {
-      res.send('wrong mode')
-    }
   } catch (err) {
     next(err)
   }
 })
 
 router.post('/nextround', async (req, res, next) => {
+  console.log('reached hehehehe')
   try {
     const idArray = req.headers.referer.split('/')
     const _id = idArray[idArray.length - 1]
     const thegame = await Game.findOne({ _id })
+    console.log(`The round is ${thegame.round}`)
     if (thegame.mode === 3) {
       //set all answers to empty strings to start
       const players = thegame.players
+      const guesses = thegame.guesses
       for (let i = 0; i < players.length; ++i) {
-        let player = players[i]
-        const username = player
-        const answer = ""
-        await User.updateOne({ username }, { answer })
+        guesses[i] = ''
       }
+      await Game.updateOne({ _id }, { guesses })
 
       //if we have reached the end, set mode to end mode
       if (thegame.round >= (2 * players.length)) {

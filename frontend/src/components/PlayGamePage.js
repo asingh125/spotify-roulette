@@ -5,30 +5,27 @@ import axios from 'axios'
 import { useNavigate } from "react-router-dom"
 // import PlayerOption from './PlayerOption'
 import AnswerSubmitter from './GameplayComponents/AnswerSubmitter'
+import SongPlayer from './GameplayComponents/SongPlayer'
 import { ProgressBar, Button, Card, Nav, Form, Navbar, Container, Row, Col, ListGroup } from 'react-bootstrap'
 
 
 const PlayGamePage = props => {
   const [players, setPlayers] = useState([])
-  const [song, setSong] = useState(['a','b','I Will Survive','Gloria Gaynor'])
+  // const [song, setSong] = useState(['a','b','I Will Survive','Gloria Gaynor'])
   const [round, setRound] = useState(1)
   const [selected, setSelected] = useState('')
   const [submitted, setSubmitted] = useState(false)
-  const iframe = '<iframe style="border-radius:10px" src="https://open.spotify.com/embed/track/7cv28LXcjAC3GsXbUvXKbX?utm_source=generator" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>'; 
-  function Iframe(props) {
-    return (<div dangerouslySetInnerHTML={ {__html:  props.iframe?props.iframe:""}} />);
-  }
-
+  const song = props.song
   const navigate = useNavigate()
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      updatePlayers()
-      updateRound()
-      updateSong()
-    }, 10000)
-    return () => clearInterval(interval)
-  }, [players])
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     updatePlayers()
+  //     updateRound()
+  //     // updateSong()
+  //   }, 10000)
+  //   return () => clearInterval(interval)
+  // }, [players])
 
   const updatePlayers = async () => {
     const { data } = await axios.get('/gameapi/players')
@@ -36,44 +33,43 @@ const PlayGamePage = props => {
     setPlayers(d)
   }
 
-
-  const updateSong = async () => {
-    const { data } = await axios.get('/gameapi/song')
-    setSong(data.split('|'))
-  }
+  // const updateSong = async () => {
+  //   const { data } = await axios.get('/gameapi/song')
+  //   setSong(data.split('|'))
+  // }
 
   const updateRound = async () => {
     const { data } = await axios.get('/gameapi/roundnum')
     setRound(parseInt(data))
   }
 
-  const displayPlayerOptions = () => {
-    let radios = []
-    for (let i = 0; i < players.length; ++i) {
-      const player = players[i]
-      const radio = 
-      <Form.Check 
-        type={'radio'}
-        id={`radio-${i}}`}
-        label={player}
-        name='radios'
-        onClick={ () => {setSelected(player)} }
-      />
-      radios.push(radio)
-      // let listOption = <> <ListGroup.Item>{player}</ListGroup.Item> </>
-    }
-    return (
-      // <>
-      //   {players.map(player => <> <ListGroup.Item>{player}</ListGroup.Item> </>)}
-      // </>
-      <>
-      <Form>
-        {radios}
-      </Form>
-    </>
+  // const displayPlayerOptions = () => {
+  //   let radios = []
+  //   for (let i = 0; i < players.length; ++i) {
+  //     const player = players[i]
+  //     const radio = 
+  //     <Form.Check 
+  //       type={'radio'}
+  //       id={`radio-${i}}`}
+  //       label={player}
+  //       name='radios'
+  //       onClick={ () => {setSelected(player)} }
+  //     />
+  //     radios.push(radio)
+  //     // let listOption = <> <ListGroup.Item>{player}</ListGroup.Item> </>
+  //   }
+  //   return (
+  //     // <>
+  //     //   {players.map(player => <> <ListGroup.Item>{player}</ListGroup.Item> </>)}
+  //     // </>
+  //     <>
+  //     <Form>
+  //       {radios}
+  //     </Form>
+  //   </>
 
-    )
-  }
+  //   )
+  // }
 
   const submitAnswer = () => {
     axios.post('/gameapi/submitanswer', { selected }).then(result => {
@@ -107,23 +103,20 @@ const PlayGamePage = props => {
       Round {round}
       </Card.Header>
     <Form className="rounded p-4 p-sm-3">
-      <Card.Title>Song:</Card.Title>
+      {/* <Card.Title>Song:</Card.Title>
       <Card.Body>
-      {/* <ListGroup>
+      <ListGroup>
       <ListGroup.Item variant="dark">
         <b>Title:</b> {song[2]}
       </ListGroup.Item>
       <ListGroup.Item variant="dark">
         <b>Artist:</b> {song[3]}
       </ListGroup.Item>
-      </ListGroup> */}
-      CORRECT VERSION
-
+      </ListGroup>
       <Iframe iframe={iframe} /> 
+      </Card.Body> */}
 
-
-
-      </Card.Body>
+      <SongPlayer song={song}/>
 
       <AnswerSubmitter players={players}/>
       
