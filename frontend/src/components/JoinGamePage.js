@@ -3,15 +3,16 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useNavigate } from "react-router-dom"
-import { ProgressBar, Button, Card, Nav, Form, Navbar, Container, Row, Col, ListGroup } from 'react-bootstrap'
-
+import { Alert, Button, Card, Nav, Form, Navbar, Container, Row, Col, ListGroup, Well } from 'react-bootstrap'
 
 const JoinGamePage = props => {
   const [players, setPlayers] = useState([])
+  const [id, setID] = useState('    Loading...   ')
 
   useEffect(() => {
     const interval = setInterval(() => {
      updatePlayers()
+     updateGameID()
     }, 500)
     return () => clearInterval(interval)
   }, [players])
@@ -20,6 +21,11 @@ const JoinGamePage = props => {
     const { data } = await axios.get('/gameapi/players')
     const d = data.split(',')
     setPlayers(d)
+  }
+
+  const updateGameID = async () => {
+    const { data } = await axios.get('/gameapi/gameID')
+    setID(data.toString())
   }
 
   const navigate = useNavigate()
@@ -38,6 +44,30 @@ const JoinGamePage = props => {
  <Container fluid="md">
     <Card>
     <Form className="rounded p-4 p-sm-3">
+      <Card.Body>
+      
+      <Card.Title>Game Code:</Card.Title>
+      <Alert key='warning' variant='secondary'>
+              {/* <h6 className="text-center">{'  '}{id}{'  '}</h6> */}
+              {id}
+      </Alert>
+      {/* <Card.Body>
+        <Container>
+          <Row > 
+             </Container>className="justify-content-md-center"> 
+            <Col md="auto"> 
+              <Alert key='warning' variant='secondary'>
+              {id}
+              </Alert>
+            </Col>
+          </Row>
+        </Container>
+
+      {/* <Well ></Well> 
+      </Card.Body> */}
+
+      <div> <br/> </div>
+
       <Card.Title>Players:</Card.Title>
       <Card.Body>
         <ListGroup>
@@ -45,9 +75,9 @@ const JoinGamePage = props => {
             {players.map(player => <> <ListGroup.Item>{player}</ListGroup.Item> </>)}
           </>
         </ListGroup>
-        <br/>
-        <Button onClick={startGame}>Start Game</Button>
       </Card.Body>
+      <br/>
+      <Button onClick={startGame}>Start Game</Button>
     {/* <h2>Players:</h2> */}
     {/* <>
       {players.map(player => <> <p>{player}</p> <br/> </>)}
@@ -57,6 +87,7 @@ const JoinGamePage = props => {
      <GridContainer>
       <Button onClick={startGame}>Start Game</Button>
     </GridContainer>  */}
+    </Card.Body>
     </Form>
     </Card>
     </Container>

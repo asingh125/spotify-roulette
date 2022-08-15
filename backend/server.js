@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const express = require('express')
 const session = require('cookie-session')
-const UserRouter = require('./routes/account')
+// const UserRouter = require('./routes/account')
 const GameRouter = require('./routes/gameapi')
 const path = require('path')
 const User = require('./models/user')
@@ -63,7 +63,7 @@ app.get('/login', function(req, res) {
   res.redirect(s);
 });
 
-app.use('/account', UserRouter)
+// app.use('/account', UserRouter)
 app.use('/gameapi', GameRouter)
 
 app.get('/callback', function(req, res) {

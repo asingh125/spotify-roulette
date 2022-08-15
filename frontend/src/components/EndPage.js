@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import axios from 'axios'
 import { useNavigate } from "react-router-dom"
 import ScoreList from './GameplayComponents/ScoreList'
-import { ProgressBar, Button, Card, Nav, Form, Navbar, Container, Row, Col, ListGroup, Badge } from 'react-bootstrap'
+import { Alert, Button, Card, Nav, Form, Navbar, Container, Row, Col, ListGroup, Badge } from 'react-bootstrap'
 
 const EndPage = props => {
   // players = props.players
@@ -49,7 +49,6 @@ const EndPage = props => {
   const navigate = useNavigate()
 
   const getWinners = () => {
-    let ret = [<h2>Winner: </h2>]
     let windexes = [0]
     let winscore = scores[0]
     for (let i = 1; i < players.length; ++i) {
@@ -61,36 +60,26 @@ const EndPage = props => {
       }
     }
 
+    let winnerHeader = ''
+    if (windexes.length > 1) {
+      winnerHeader = 'Winners: '
+      // ret.push(<Card.Title>Winners: </Card.Title>)
+    } else {
+      winnerHeader = 'Winner: '
+      // ret.push(<Card.Title>Winner: </Card.Title>)
+    }
+
+    let winnerList = []
+
     for (let i = 0; i < windexes.length; ++i) {
-      ret.push(<h3>{players[windexes[i]]}</h3>)
+      winnerList.push( <Badge bg={'success'}>
+        {players[windexes[i]]}
+      </Badge>)
     }
-    return ret
-  }
-
-  const returnPlayersAndScores = () => {
-    const ret = []
-    // itemsArray.sort(function(a, b){  
-    //   return sortingArr.indexOf(a) - sortingArr.indexOf(b);
-    // });
-
-    // console.log(players)
-    // console.log(scores)
-
-    for (let i = 0; i < players.length; ++i) {
-      ret.push(       
-        <ListGroup.Item as="li">
-          {players[i]} {' '}
-          <Badge variant="primary" pill >
-            {scores[i]}
-          </Badge>
-        </ListGroup.Item> 
-      )
-    }
-
     return (
-      <ListGroup as="ol" numbered >
-        {ret}
-      </ListGroup>
+      <h4>
+        {winnerHeader} {winnerList}
+      </h4>
     )
   }
 
@@ -109,12 +98,18 @@ const EndPage = props => {
       Round {round}
       </Card.Header> */}
     <Form className="rounded p-4 p-sm-3">
-      
-      <Card.Title>Game Over! Final Scores:</Card.Title>
+      <Card.Body><h3 class="text-center">Game Over!</h3></Card.Body>
+      <Card.Body>
+        {getWinners()}
+      </Card.Body>
       <Card.Body>
         <ScoreList />
         <br/>
-        <Button>Play again with same players</Button>
+        <Button>Play again {'('}same players{')'}</Button>
+        <p></p>
+        {/* <br/>
+        <br/> */}
+        <Button>New game</Button>
       </Card.Body>
     </Form>
     </Card>

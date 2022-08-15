@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
-const SongUpdater = props => {
+const RoundUpdater = props => {
   const setState = props.setState
 
   const [newState, setNewState] = useState(props.initial)
@@ -11,19 +11,18 @@ const SongUpdater = props => {
   useEffect(() => {
     const interval = setInterval(() => {
       if (lastState != newState) {
-        console.log(`Song changed from ${lastState} to ${newState}.`)
+        console.log(`Round changed from ${lastState} to ${newState}.`)
         setState(newState)
       }
       setLastState(newState)
-      updateSong()
+      updateRound()
     }, 500)
     return () => clearInterval(interval)
   }, [newState, lastState])
 
-  const updateSong = async () => {
-    const { data } = axios.get('/gameapi/songID').then(result => {
-      setNewState(result.data)
-    })
+  const updateRound = async () => {
+    const { data } = await axios.get('/gameapi/roundnum')
+    setNewState(parseInt(data))
   }
 
   return (
@@ -33,4 +32,4 @@ const SongUpdater = props => {
 
 }
 
-export default SongUpdater
+export default RoundUpdater

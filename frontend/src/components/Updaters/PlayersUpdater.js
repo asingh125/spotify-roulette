@@ -5,8 +5,8 @@ import axios from 'axios'
 const PlayersUpdater = props => {
   const setState = props.setState
 
-  const [newState, setNewState] = useState(props.mode)
-  const [lastState, setLastState] = useState(props.mode)
+  const [newState, setNewState] = useState(props.initial)
+  const [lastState, setLastState] = useState(props.initial)
 
   const arrayEquals = (arr1, arr2) => {
     if ((arr1 == undefined) && (arr2 == undefined)) {

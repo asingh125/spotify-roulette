@@ -10,38 +10,39 @@ import { ProgressBar, Button, Card, Nav, Form, Navbar, Container, Row, Col, List
 
 
 const PlayGamePage = props => {
-  const [players, setPlayers] = useState([])
-  // const [song, setSong] = useState(['a','b','I Will Survive','Gloria Gaynor'])
-  const [round, setRound] = useState(1)
+  const players = props.players
+  const round = props.round
+  // const [round, setRound] = useState(1)
   const [selected, setSelected] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const song = props.song
-  const navigate = useNavigate()
+  // const navigate = useNavigate()
 
   // useEffect(() => {
   //   const interval = setInterval(() => {
-  //     updatePlayers()
-  //     updateRound()
+  //     console.log(`this is from playgamepage: ${players}`)
+  //     // updatePlayers()
+  //     // updateRound()
   //     // updateSong()
-  //   }, 10000)
+  //   }, 1000)
   //   return () => clearInterval(interval)
   // }, [players])
 
-  const updatePlayers = async () => {
-    const { data } = await axios.get('/gameapi/players')
-    const d = data.split(',')
-    setPlayers(d)
-  }
+  // const updatePlayers = async () => {
+  //   const { data } = await axios.get('/gameapi/players')
+  //   const d = data.split(',')
+  //   setPlayers(d)
+  // }
 
   // const updateSong = async () => {
   //   const { data } = await axios.get('/gameapi/song')
   //   setSong(data.split('|'))
   // }
 
-  const updateRound = async () => {
-    const { data } = await axios.get('/gameapi/roundnum')
-    setRound(parseInt(data))
-  }
+  // const updateRound = async () => {
+  //   const { data } = await axios.get('/gameapi/roundnum')
+  //   setRound(parseInt(data))
+  // }
 
   // const displayPlayerOptions = () => {
   //   let radios = []
@@ -71,15 +72,15 @@ const PlayGamePage = props => {
   //   )
   // }
 
-  const submitAnswer = () => {
-    axios.post('/gameapi/submitanswer', { selected }).then(result => {
-      if (result.data === 'answer submitted') {
-        setSubmitted(true)
-      } else {
-        window.alert('Error submitting answer. Please try again.');
-      }
-    })
-  }
+  // const submitAnswer = () => {
+  //   axios.post('/gameapi/submitanswer', { selected }).then(result => {
+  //     if (result.data === 'answer submitted') {
+  //       setSubmitted(true)
+  //     } else {
+  //       window.alert('Error submitting answer. Please try again.');
+  //     }
+  //   })
+  // }
 
 
   return (
@@ -103,58 +104,18 @@ const PlayGamePage = props => {
       Round {round}
       </Card.Header>
     <Form className="rounded p-4 p-sm-3">
-      {/* <Card.Title>Song:</Card.Title>
-      <Card.Body>
-      <ListGroup>
-      <ListGroup.Item variant="dark">
-        <b>Title:</b> {song[2]}
-      </ListGroup.Item>
-      <ListGroup.Item variant="dark">
-        <b>Artist:</b> {song[3]}
-      </ListGroup.Item>
-      </ListGroup>
-      <Iframe iframe={iframe} /> 
-      </Card.Body> */}
 
       <SongPlayer song={song}/>
+      
+      <p></p>
 
-      <AnswerSubmitter players={players}/>
-      
-      {/*
-      <br />
-      
-      <Card.Title>Your guess:</Card.Title>
-      <Card.Body>
-      <ListGroup defaultActiveKey="">
-        <>
-          {displayPlayerOptions()}
-        </>
-        {/* <ListGroup.Item action href="">
-          Aarushi
-        </ListGroup.Item>
-        <ListGroup.Item action href="">
-          Ishaan
-        </ListGroup.Item>
-        <ListGroup.Item action href="">
-          Sarah
-        </ListGroup.Item> 
-        </ListGroup>
-        <br/>
-        <Button onClick={submitAnswer}>Submit Answer</Button>
-      </Card.Body> */}
+      <AnswerSubmitter players={players} />
+
     </Form>
     </Card>
     </Col>
     </Row>
     </Container>
-
-    {/* <br />
-    <>
-      <h2>Song:</h2>
-      <h3>Title: {song[2]}</h3>
-      <h3>Artist: {song[3]}</h3>
-      {players.map(player => <PlayerOption player={player} />)}
-    </> */}
     </>
   )
  

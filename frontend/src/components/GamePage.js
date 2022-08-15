@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import axios from 'axios'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
-  ProgressBar, Button, Card, Nav, Form, Navbar, Container, Row, Col, ListGroup,
+  ProgressBar, Button, Card, Nav, Form, Navbar, Container, Row, Col, ListGroup, Spinner
 } from 'react-bootstrap'
 import Timer from './Timer'
 import JoinGamePage from './JoinGamePage'
@@ -16,26 +16,16 @@ import App2 from './SongPlayer'
 import ModeUpdater from './Updaters/ModeUpdater'
 import SongUpdater from './Updaters/SongUpdater'
 import PlayersUpdater from './Updaters/PlayersUpdater'
+import RoundUpdater from './Updaters/RoundUpdater'
 
 
 const GamePage = props => {
   const { _id } = useParams()
   const [username, setUsername] = useState('')
-  const [mode, setMode] = useState(1)
+  const [mode, setMode] = useState(0)
   const [song, setSong] = useState('')
   const [players, setPlayers] = useState([])
-
-  // const updateMode = async () => {
-  //   const { data } = axios.get('/gameapi/mode').then(result => {
-  //     return parseInt(result.data, 10)
-  //   })
-  // }
-
-  // const updateSong = async () => {
-  //   const { data } = axios.get('/gameapi/songID').then(result => {
-  //     return result.data
-  //   })
-  // }
+  const [round, setRound] = useState(0)
 
   // useEffect(() => {
   //   const interval = setInterval(() => {
@@ -56,13 +46,28 @@ const GamePage = props => {
       case 1:
         return (<JoinGamePage />)
       case 2:
-        return (<PlayGamePage song={song} players={players}/>)
+        return (<PlayGamePage song={song} players={players} round={round}/>)
       case 3:
         return (<BetweenPage players={players}/>) //If playerAdvancedToNextRound, then display between, else stay on oldie
       case 4:
         return (<EndPage players={players}/>)
       default:
-        return (<></>)
+        return (
+          <Container fluid="md">
+          <Card> 
+            <Card.Body>
+            <Container>
+              <Row className="justify-content-md-center">
+                <div> <br/> </div>
+                <Col md="auto"> <Spinner animation="border" variant="primary" role="status"> </Spinner> </Col>
+                <Col md="auto"> <h2>{'   Loading...'}</h2> </Col>
+                <div> <br/> </div>
+              </Row>
+            </Container>
+            </Card.Body>
+          </Card>
+          </Container>
+        )
     }
   }
 
@@ -80,11 +85,11 @@ const GamePage = props => {
       <ModeUpdater setState={setMode} initial={mode}/>
       <SongUpdater setState={setSong} initial={song}/>
       <PlayersUpdater setState={setPlayers} initial={players}/>
-      The mode is: {mode}
+      <RoundUpdater setState={setRound} initial={round}/>
+      {/* The mode is: {mode}
       <br />
-      The players are: {players}
-
-
+      The players are: {players} 
+      The round is: {round} */}
     </>
   )
 }

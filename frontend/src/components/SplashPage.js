@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
-import { Alert, Button, Card, Nav, Form, Navbar, Container, Row, Col, PageHeader } from 'react-bootstrap'
+import { Alert, Button, Card, Nav, Form, Navbar, Container, Row, Col, PageHeader, Tabs, Tab, NavItem } from 'react-bootstrap'
 import StartNewGameComponent from './TabComponents/StartNewGameComponent'
 import JoinGameComponent from './TabComponents/JoinGameComponent'
 import AccountComponent from './TabComponents/AccountComponent'
@@ -12,6 +12,7 @@ const SplashPage = props => {
   const [username, setUsername] = useState('')
   const [gamecode, setGameCode] = useState('')
   const [loginStatus, setLoginStatus] = useState(true)
+  const [navKey, setNavKey] = useState('startgame')
 
   useEffect(() => {
   }, [])
@@ -53,6 +54,10 @@ const SplashPage = props => {
   //   console.log(data)
   // }
 
+  const navSelect = key => {
+    setNavKey(key)
+  }
+
   return (
     <>
 
@@ -83,43 +88,31 @@ const SplashPage = props => {
 
               {/* navigation bar */}
               <Card.Header>
-                <Nav variant="tabs" defaultActiveKey="#startgame">
+                <Nav variant="tabs" activeKey="startgame" onSelect={navSelect}>
                 <Nav.Item>
-                  <Nav.Link href="/#startgame">Start Game</Nav.Link>
+                  <Nav.Link eventKey='startgame' active={navKey === 'startgame'}>Start Game</Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
-                  <Nav.Link href="/#joingame">Join Game</Nav.Link>
+                  <Nav.Link eventKey='joingame' active={navKey === 'joingame'}>Join Game</Nav.Link>
                 </Nav.Item>
-
-                {/* <Nav.Item>
-                  <Nav.Link href="#account" >
-                    Account
-                  </Nav.Link>
-                </Nav.Item> */}
 
               </Nav>
               </Card.Header>
 
               {/* empty tab */}
-              {(window.location.hash.substr(1) === '' || window.location.hash.substr(1) === 'startgame') ? 
+              {(navKey === 'startgame') ? 
                 <StartNewGameComponent />
               :
               <></>
               }
 
               {/* join game tab */}
-              {(window.location.hash.substr(1) === 'joingame') ? 
+              {(navKey === 'joingame') ? 
                 <JoinGameComponent />
               :
               <></>
               }
 
-              {/* account tab
-              {(window.location.hash.substr(1) === 'account') ? 
-                <AccountComponent />
-              :
-              <></>
-              } */}
 
             </Card>
           </Col>

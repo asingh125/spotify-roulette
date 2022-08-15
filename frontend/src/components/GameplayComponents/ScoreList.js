@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import axios from 'axios'
 import { useNavigate } from "react-router-dom"
-import { ProgressBar, Button, Card, Nav, Form, Navbar, Container, Row, Col, ListGroup, Badge } from 'react-bootstrap'
+import { Table, ProgressBar, Button, Card, Nav, Form, Navbar, Container, Row, Col, ListGroup, Badge } from 'react-bootstrap'
 
 const ScoreList = props => {
   const [players, setPlayers] = useState([])
@@ -52,7 +52,8 @@ const ScoreList = props => {
   }
 
   const returnPlayersAndScores = () => {
-    const ret = []
+    const sl = []
+    const tl = []
     // itemsArray.sort(function(a, b){  
     //   return sortingArr.indexOf(a) - sortingArr.indexOf(b);
     // });
@@ -61,7 +62,7 @@ const ScoreList = props => {
     // console.log(scores)
 
     for (let i = 0; i < players.length; ++i) {
-      ret.push(       
+      sl.push(       
         <ListGroup.Item as="li">
           {players[i]} {' '}
           <Badge variant="primary" pill >
@@ -69,21 +70,44 @@ const ScoreList = props => {
           </Badge>
         </ListGroup.Item> 
       )
+
+      tl.push(
+        <tr>
+          <td width={60}>{i+1}</td>
+          <td>{players[i]}</td>
+          <td width={150}>{scores[i]}</td>
+        </tr>
+      )
     }
 
     return (
-      <ListGroup as="ol" numbered >
-        {ret}
-      </ListGroup>
+      <Table striped bordered hover>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>User</th>
+          <th>Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        {tl}
+      </tbody>
+    </Table>
     )
+
+    // return (
+    //   <ListGroup as="ol" numbered >
+    //     {sl}
+    //   </ListGroup>
+    // )
   }
 
   return ( 
     <>
       <Card.Title>Scores:</Card.Title>
-      <Card.Body>
+      {/* <Card.Body> */}
         {returnPlayersAndScores()}
-      </Card.Body>
+      {/* </Card.Body> */}
     </>
   )
  

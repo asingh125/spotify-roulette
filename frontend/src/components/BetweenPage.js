@@ -16,7 +16,6 @@ const BetweenPage = props => {
   useEffect(() => {
     const interval = setInterval(() => {
       updateRound()
-      console.log(players)
     }, 500)
     return () => clearInterval(interval)
   }, [round])

@@ -1,9 +1,8 @@
+/* eslint-disable */
 const express = require('express')
 const request = require('request')
 const User = require('../models/user')
 const Game = require('../models/game')
-
-/* eslint-disable */
 
 const router = express.Router()
 
@@ -90,6 +89,7 @@ router.post('/create', async (req, res, next) => {
         console.log(string1)
         console.log(string2)
 
+        // Actually create the game now
         players = [username]
         Game.create({ players, mode, round, answer, songs, songOrder, song }).then(thegame => {        
           if (thegame.mode === 1) {
@@ -101,6 +101,7 @@ router.post('/create', async (req, res, next) => {
             Game.updateOne({ _id }, { songs }).then(result => {
               // console.log(`http://localhost:3000/game/${_id.toString()}`)
               req.session.username = username
+              req.session.gameID = _id
               res.send(_id.toString())
             })
           } else {
@@ -128,12 +129,33 @@ router.post('/join', async (req, res, next) => {
     } else {
       const players = thegame.players
       players.push(username)
-      const newgame = await Game.updateOne({ _id }, { players })
+      await Game.updateOne({ _id }, { players })
       req.session.username = username
+      req.session.gameID = _id
       res.send('game joined')
     }
   } catch (err) {
     console.log('WRONG PATH')
+    next(err)
+  }
+})
+
+router.get('/gameIDfromURL', async (req, res, next) => {
+  try {
+    const idArray = req.headers.referer.split('/')
+    const _id = idArray[idArray.length - 1]
+    console.log(req.headers)
+    res.send(_id.toString())
+  } catch (err) {
+    next(err)
+  }
+})
+
+// Returns the game _id, from the cookie
+router.get('/gameID', async (req, res, next) => {
+  try {
+    res.send(req.session.gameID.toString())
+  } catch (err) {
     next(err)
   }
 })
@@ -154,17 +176,7 @@ router.get('/scores', async (req, res, next) => {
   const _id = idArray[idArray.length - 1]
   try {
     const thegame = await Game.findOne({ _id })
-    const players = thegame.players
-    // console.log(`these are the scores ${thegame.scores}`)
     res.send(thegame.scores.toString())
-    // let scoreArr = []
-    // for (let i = 0; i < players.length; ++i) {
-    //   let player = players[i]
-    //   const username = player
-    //   let theuser = await User.findOne({ username })
-    //   scoreArr.push(theuser.score)
-    // }
-    // res.send(scoreArr.toString())
   } catch (err) {
     next(err)
   }
@@ -305,52 +317,46 @@ router.post('/submitanswer', async (req, res, next) => {
   
         // update their spot in guesses array
         let guesses = thegame.guesses
-        guesses[userIndex] = answer
-        // await Game.updateOne({ _id }, { guesses })
-  
-  
-        // update their spot in scores array
-        let scores = thegame.scores
-        let score = scores[userIndex]
-        if (answer === correctAnswer) {
-          scores[userIndex] = score + 1
-        }
-  
-        // push the updates
-        Game.updateOne({ _id }, { guesses, scores }).then( _ => {
+        if (guesses[userIndex] != '') {
+          res.send('answer already submitted')
+        } else {
+          guesses[userIndex] = answer
+          // await Game.updateOne({ _id }, { guesses })
+    
+          // update their spot in scores array
+          let scores = thegame.scores
+          let score = scores[userIndex]
+          if (answer === correctAnswer) {
+            scores[userIndex] = score + 1
+          }
+    
+          // push the updates
+          Game.updateOne({ _id }, { guesses, scores }).then( _ => {
+            res.send('answer submitted')
+            console.log('answer has been submitted')
+            Game.findOne({ _id }).then( result => {
+              let thegame = result
+              let players = thegame.players
+              let guesses = thegame.guesses
+              let allOtherAnswers = true
 
-          Game.findOne({ _id }).then( result => {
-            let thegame = result
-            // console.log('PRINTINT THE GAME')
-            // console.log(thegame)
-            // console.log(thegame.guesses)
-            // console.log(thegame.scores)
-            let players = thegame.players
-            let guesses = thegame.guesses
-            console.log(`The guesses are ${guesses}`)
-            // console.log(thegame.players)
-            //check to see if everyone else has submitted answers
-            // console.log(players)
-            let allOtherAnswers = true
-            for (let i = 0; i < players.length; ++i) {
-              let otherPlayerIndex = thegame.players.indexOf(players[i])
-              // console.log(otherPlayerIndex)
-              // console.log(guesses)
-              if (guesses[otherPlayerIndex].length === 0) {
-                allOtherAnswers = false
+              for (let i = 0; i < players.length; ++i) {
+                let otherPlayerIndex = thegame.players.indexOf(players[i])
+                if (guesses[otherPlayerIndex].length === 0) {
+                  allOtherAnswers = false
+                }
               }
-            }
-      
-            //if all other answers are in, change the mode to 3 (between rounds mode)
-            if (allOtherAnswers) {
-              const mode = 3
-              Game.updateOne({ _id }, { mode }).then( result => {
-                console.log('answer has been submitted')
-                res.send('answer submitted')
-              })
-            }
+        
+              //if all other answers are in, change the mode to 3 (between rounds mode)
+              if (allOtherAnswers) {
+                const mode = 3
+                Game.updateOne({ _id }, { mode }).then( result => {
+                  console.log('mode has been changed')
+                })
+              }
+            })
           })
-        })
+        }
     
       } else {
         res.send('wrong mode')
