@@ -30,55 +30,56 @@ const ScoreList = props => {
     setScores(d)
   }
 
-  const navigate = useNavigate()
-
-  const getWinners = () => {
-    let ret = [<h2>Winner: </h2>]
-    let windexes = [0]
-    let winscore = scores[0]
-    for (let i = 1; i < players.length; ++i) {
-      if (scores[i] > winscore) {
-        winscore = scores[i]
-        windexes = [i]
-      } else if (scores[i] === winscore) {
-        windexes.push(i)
-      }
-    }
-
-    for (let i = 0; i < windexes.length; ++i) {
-      ret.push(<h3>{players[windexes[i]]}</h3>)
-    }
-    return ret
-  }
-
   const returnPlayersAndScores = () => {
     const sl = []
-    const tl = []
+    const stl = []
     // itemsArray.sort(function(a, b){  
     //   return sortingArr.indexOf(a) - sortingArr.indexOf(b);
     // });
 
     // console.log(players)
     // console.log(scores)
+    let playersAndScores = []
 
     for (let i = 0; i < players.length; ++i) {
-      sl.push(       
-        <ListGroup.Item as="li">
-          {players[i]} {' '}
-          <Badge variant="primary" pill >
-            {scores[i]}
-          </Badge>
-        </ListGroup.Item> 
-      )
+      playersAndScores.push([players[i], scores[i]])
+      // sl.push(       
+      //   <ListGroup.Item as="li">
+      //     {players[i]} {' '}
+      //     <Badge variant="primary" pill >
+      //       {scores[i]}
+      //     </Badge>
+      //   </ListGroup.Item> 
+      // )
 
+      // tl.push(
+      //   [
+      //     <tr>
+      //       <td width={60}>{i+1}</td>
+      //       <td>{players[i]}</td>
+      //       <td width={150}>{scores[i]}</td>
+      //     </tr>,
+      //     scores[i]
+      //   ]
+      // )
+    }
+
+    playersAndScores.sort( (a, b) => {
+      return b[1] - a[1]
+    })
+
+    let tl = []
+    for (let i = 0; i < players.length; ++i) {
       tl.push(
         <tr>
-          <td width={60}>{i+1}</td>
-          <td>{players[i]}</td>
-          <td width={150}>{scores[i]}</td>
+            <td width={60}> <b>{i+1}</b></td>
+            <td>{playersAndScores[i][0]}</td>
+            <td width={150}>{playersAndScores[i][1]}</td>
         </tr>
       )
     }
+
+    
 
     return (
       <Table striped bordered hover>

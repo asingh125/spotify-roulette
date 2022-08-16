@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
@@ -8,9 +10,9 @@ import {
 } from 'react-bootstrap'
 import SplashPage from './components/SplashPage'
 import GamePage from './components/GamePage'
-import JoinGamePage from './components/JoinGamePage'
-import PlayGamePage from './components/PlayGamePage'
-import EndPage from './components/EndPage'
+// import JoinGamePage from './components/JoinGamePage'
+// import PlayGamePage from './components/PlayGamePage'
+// import EndPage from './components/EndPage'
 // import 'bootstrap/dist/css/bootstrap.min.css'
 import './custom.scss'
 
@@ -22,6 +24,7 @@ const App = () => (
       <Route exact path="/" element={<SplashPage />} />
       {/* <Route exact path="/game:id" element={<SignUp />} /> */}
       <Route exact path="/game/:id" element={<GamePage />} />
+      {/* <Route exact path="/redir" element={<Link to={{ pathname: "https://example.zendesk.com/hc/en-us/articles/123456789-Privacy-Policies" }} target="_blank" />} /> */}
 
       {/* <Route exact path="/signup" element={<SignUp />} />
         <Route exact path="/login" element={<Login />} />

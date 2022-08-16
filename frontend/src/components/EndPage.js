@@ -72,13 +72,13 @@ const EndPage = props => {
     let winnerList = []
 
     for (let i = 0; i < windexes.length; ++i) {
-      winnerList.push( <Badge bg={'success'}>
+      winnerList.push( <> <Badge bg={'success'}>
         {players[windexes[i]]}
-      </Badge>)
+      </Badge> &nbsp; </>)
     }
     return (
       <h4>
-        {winnerHeader} {winnerList}
+        {winnerHeader} &nbsp; {winnerList}
       </h4>
     )
   }
@@ -109,7 +109,7 @@ const EndPage = props => {
         <p></p>
         {/* <br/>
         <br/> */}
-        <Button>New game</Button>
+        <Button onClick={ () => {navigate('/')}}>New game</Button>
       </Card.Body>
     </Form>
     </Card>

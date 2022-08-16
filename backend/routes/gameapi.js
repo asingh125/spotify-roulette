@@ -154,7 +154,19 @@ router.get('/gameIDfromURL', async (req, res, next) => {
 // Returns the game _id, from the cookie
 router.get('/gameID', async (req, res, next) => {
   try {
+    let _id = req.session.gameID
     res.send(req.session.gameID.toString())
+  } catch (err) {
+    next(err)
+  }
+})
+
+router.get('/answer', async (req, res, next) => {
+  try {
+    const idArray = req.headers.referer.split('/')
+    const _id = idArray[idArray.length - 1]
+    const thegame = await Game.findOne({ _id })
+    res.send(thegame.answer.toString())
   } catch (err) {
     next(err)
   }
@@ -333,7 +345,6 @@ router.post('/submitanswer', async (req, res, next) => {
           // push the updates
           Game.updateOne({ _id }, { guesses, scores }).then( _ => {
             res.send('answer submitted')
-            console.log('answer has been submitted')
             Game.findOne({ _id }).then( result => {
               let thegame = result
               let players = thegame.players
