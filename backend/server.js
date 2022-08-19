@@ -1,5 +1,6 @@
 /* eslint-disable */
 
+const PORT = process.env.PORT || 3000
 const mongoose = require('mongoose')
 const express = require('express')
 const session = require('cookie-session')
@@ -41,7 +42,7 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../dist/index.html'))
 })
 
-app.listen(3000, () => {
+app.listen(PORT, () => {
 })
 
 app.get('/', (req, res) => {
