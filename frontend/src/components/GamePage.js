@@ -27,6 +27,7 @@ const GamePage = props => {
   const [players, setPlayers] = useState([])
   const [round, setRound] = useState(0)
   const [inGame, setInGame] = useState(true)
+  const [answer, setAnswer] = useState('')
 
   // useEffect(() => {
   //   const interval = setInterval(() => {
@@ -45,13 +46,13 @@ const GamePage = props => {
   const displayGameMode = () => {
     switch (mode) {
       case 1:
-        return (<JoinGamePage inGame={inGame} setInGame={setInGame} />)
+        return (<JoinGamePage inGame={inGame} />)
       case 2:
-        return (<PlayGamePage song={song} players={players} round={round} inGame={inGame} setInGame={setInGame} />)
+        return (<PlayGamePage song={song} players={players} round={round} inGame={inGame} />)
       case 3:
-        return (<BetweenPage players={players} inGame={inGame} setInGame={setInGame} />) 
+        return (<BetweenPage players={players} inGame={inGame} answer={answer}/>) 
       case 4:
-        return (<EndPage players={players} inGame={inGame} setInGame={setInGame} />)
+        return (<EndPage players={players} inGame={inGame} />)
       default:
         return (
           <Container fluid="md">
@@ -77,7 +78,7 @@ const GamePage = props => {
     <ModeUpdater setState={setMode} initial={mode} period={period}/>,
     <SongUpdater setState={setSong} initial={song} period={period}/>,
     <PlayersUpdater setState={setPlayers} initial={players} period={period}/>,
-    <RoundUpdater setState={setRound} initial={round} period={period}/>,
+    <RoundUpdater setState={setRound} initial={round} period={period} setAnswer={setAnswer}/>,
   ]
 
   return (

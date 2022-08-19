@@ -12,10 +12,13 @@ import { ProgressBar, Button, Card, Nav, Form, Navbar, Container, Row, Col, List
 const PlayGamePage = props => {
   const players = props.players
   const round = props.round
-  // const [round, setRound] = useState(1)
-  const [selected, setSelected] = useState('')
-  const [submitted, setSubmitted] = useState(false)
   const song = props.song
+  // const [players, setPlayers] = useState([])
+  // const [round, setRound] = useState(0)
+  // const [song, setSong] = useState('')
+
+  // const [round, setRound] = useState(1)
+  
   // const navigate = useNavigate()
 
   return (

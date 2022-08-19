@@ -10,15 +10,24 @@ import { Badge, Button, Card, Nav, Form, Navbar, Container, Row, Col, ListGroup 
 const BetweenPage = props => {
   const players = props.players
   const [round, setRound] = useState(1)
-  const [answer, setAnswer] = useState('')
+  // const [answer, setAnswer] = useState('')
+  const [prevAnswer, setPrevAnswer] = useState('')
+  const [currAnswer, setCurrAnswer] = useState('')
+  // const answer = props.answer
+  const [answer, setAnswer] = useState('fgs')
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      updateRound()
-      updateAnswer()
-    }, 200)
-    return () => clearInterval(interval)
-  }, [round])
+    updateRound()
+    updateAnswer()
+  })
+
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     updateRound()
+  //     // updateAnswer()
+  //   }, 200)
+  //   return () => clearInterval(interval)
+  // }, [round])
 
   const updateRound = async () => {
     const { data } = await axios.get('/gameapi/roundnum')
