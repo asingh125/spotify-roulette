@@ -13,7 +13,7 @@ var querystring = require('querystring');
 
 
 const app = express()
-const MONGO_URI = process.env.MONGODB_URI
+const MONGO_URI = process.env.MONGO_URI
 
 mongoose.connect(MONGO_URI, {
   useNewUrlParser: true,
