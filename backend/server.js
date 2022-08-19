@@ -7,14 +7,13 @@ const session = require('cookie-session')
 // const UserRouter = require('./routes/account')
 const GameRouter = require('./routes/gameapi')
 const path = require('path')
-const User = require('./models/user')
 
 var request = require('request'); 
 var querystring = require('querystring');
 
 
 const app = express()
-const MONGO_URI = process.env.MONGODB_URI || 'mongodb+srv://aarushi:cis197@cluster0.yeefg.mongodb.net/?retryWrites=true&w=majority'//'mongodb+srv://aarushis:SinghGuest22@spotifyroulette.a4mbl.mongodb.net/?retryWrites=true&w=majority' //'mongodb+srv://aarushi:cis197@cluster0.yeefg.mongodb.net/spotify-roulette?retryWrites=true&w=majority'
+const MONGO_URI = process.env.MONGODB_URI
 
 mongoose.connect(MONGO_URI, {
   useNewUrlParser: true,

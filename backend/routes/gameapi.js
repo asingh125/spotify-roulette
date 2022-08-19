@@ -1,13 +1,12 @@
 /* eslint-disable */
 const express = require('express')
 const request = require('request')
-const User = require('../models/user')
 const Game = require('../models/game')
 
 const router = express.Router()
 
-var client_id = '57de1779f0c1405ab175a20514bc6c30';
-var client_secret = 'bf16f90326c94a249002086a95c1fda7';
+var client_id = process.env.CLIENT_ID 
+var client_secret = process.env.CLIENT_SECRET
 
 var authOptions = {
   url: 'https://accounts.spotify.com/api/token',
