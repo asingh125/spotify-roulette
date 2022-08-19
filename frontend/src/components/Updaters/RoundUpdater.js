@@ -4,6 +4,7 @@ import axios from 'axios'
 
 const RoundUpdater = props => {
   const setState = props.setState
+  const period = props.period
 
   const [newState, setNewState] = useState(props.initial)
   const [lastState, setLastState] = useState(props.initial)
@@ -16,7 +17,7 @@ const RoundUpdater = props => {
       }
       setLastState(newState)
       updateRound()
-    }, 500)
+    }, period)
     return () => clearInterval(interval)
   }, [newState, lastState])
 

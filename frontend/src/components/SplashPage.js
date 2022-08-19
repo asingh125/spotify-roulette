@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom'
 import { Alert, Button, Card, Nav, Form, Navbar, Container, Row, Col, PageHeader, Tabs, Tab, NavItem } from 'react-bootstrap'
 import StartNewGameComponent from './TabComponents/StartNewGameComponent'
 import JoinGameComponent from './TabComponents/JoinGameComponent'
-import AccountComponent from './TabComponents/AccountComponent'
 
 /* eslint-disable */
 

@@ -25,7 +25,7 @@ const App = () => (
       {/* <Route exact path="/game:id" element={<SignUp />} /> */}
       <Route exact path="/game/:id" element={<GamePage />} />
       {/* <Route exact path="/redir" element={<Link to={{ pathname: "https://example.zendesk.com/hc/en-us/articles/123456789-Privacy-Policies" }} target="_blank" />} /> */}
-
+      <Route exact path="/:placeholder" element={<SplashPage />} />
       {/* <Route exact path="/signup" element={<SignUp />} />
         <Route exact path="/login" element={<Login />} />
         <Route exact path="/joingame/:id" element={<JoinGamePage />} />

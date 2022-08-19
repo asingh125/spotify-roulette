@@ -8,15 +8,15 @@ import {
   ProgressBar, Button, Card, Nav, Form, Navbar, Container, Row, Col, ListGroup, Spinner
 } from 'react-bootstrap'
 import Timer from './Timer'
-import JoinGamePage from './JoinGamePage'
-import PlayGamePage from './PlayGamePage'
-import BetweenPage from './BetweenPage'
-import EndPage from './EndPage'
-import App2 from './SongPlayer'
+import JoinGamePage from './GameplayPages/JoinGamePage'
+import PlayGamePage from './GameplayPages/PlayGamePage'
+import BetweenPage from './GameplayPages/BetweenPage'
+import EndPage from './GameplayPages/EndPage'
 import ModeUpdater from './Updaters/ModeUpdater'
 import SongUpdater from './Updaters/SongUpdater'
 import PlayersUpdater from './Updaters/PlayersUpdater'
 import RoundUpdater from './Updaters/RoundUpdater'
+import SpectatingWarning from './MiniComponents/SpectatingWarning'
 
 
 const GamePage = props => {
@@ -26,6 +26,7 @@ const GamePage = props => {
   const [song, setSong] = useState('')
   const [players, setPlayers] = useState([])
   const [round, setRound] = useState(0)
+  const [inGame, setInGame] = useState(true)
 
   // useEffect(() => {
   //   const interval = setInterval(() => {
@@ -44,13 +45,13 @@ const GamePage = props => {
   const displayGameMode = () => {
     switch (mode) {
       case 1:
-        return (<JoinGamePage />)
+        return (<JoinGamePage inGame={inGame} setInGame={setInGame} />)
       case 2:
-        return (<PlayGamePage song={song} players={players} round={round}/>)
+        return (<PlayGamePage song={song} players={players} round={round} inGame={inGame} setInGame={setInGame} />)
       case 3:
-        return (<BetweenPage players={players}/>) //If playerAdvancedToNextRound, then display between, else stay on oldie
+        return (<BetweenPage players={players} inGame={inGame} setInGame={setInGame} />) 
       case 4:
-        return (<EndPage players={players}/>)
+        return (<EndPage players={players} inGame={inGame} setInGame={setInGame} />)
       default:
         return (
           <Container fluid="md">
@@ -71,6 +72,14 @@ const GamePage = props => {
     }
   }
 
+  const period = 100
+  const updaterList = [
+    <ModeUpdater setState={setMode} initial={mode} period={period}/>,
+    <SongUpdater setState={setSong} initial={song} period={period}/>,
+    <PlayersUpdater setState={setPlayers} initial={players} period={period}/>,
+    <RoundUpdater setState={setRound} initial={round} period={period}/>,
+  ]
+
   return (
     <>
       <Navbar>
@@ -82,14 +91,18 @@ const GamePage = props => {
       </Navbar>
 
       {displayGameMode()}
-      <ModeUpdater setState={setMode} initial={mode}/>
-      <SongUpdater setState={setSong} initial={song}/>
-      <PlayersUpdater setState={setPlayers} initial={players}/>
-      <RoundUpdater setState={setRound} initial={round}/>
-      {/* The mode is: {mode}
-      <br />
-      The players are: {players} 
-      The round is: {round} */}
+
+      <Container fluid="md">
+          <Form className="rounded p-8 p-sm-3">
+            <Card.Body>
+              <SpectatingWarning inGame={inGame} setInGame={setInGame} />
+            </Card.Body>
+          </Form>
+      </Container>
+
+
+      {updaterList}
+
     </>
   )
 }

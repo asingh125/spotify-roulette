@@ -13,7 +13,7 @@ const ScoreList = props => {
     const interval = setInterval(() => {
       updatePlayers()
       updatesScores()
-    }, 500)
+    }, 200)
     return () => clearInterval(interval)
   }, [players, scores])
 

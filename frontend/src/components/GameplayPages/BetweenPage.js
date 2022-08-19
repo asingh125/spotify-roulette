@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import axios from 'axios'
-import ScoreList from './GameplayComponents/ScoreList'
+import ScoreList from '../MiniComponents/ScoreList'
 import { useNavigate } from "react-router-dom"
 import { Badge, Button, Card, Nav, Form, Navbar, Container, Row, Col, ListGroup } from 'react-bootstrap'
 
@@ -16,7 +16,7 @@ const BetweenPage = props => {
     const interval = setInterval(() => {
       updateRound()
       updateAnswer()
-    }, 500)
+    }, 200)
     return () => clearInterval(interval)
   }, [round])
 
@@ -61,13 +61,17 @@ const BetweenPage = props => {
       </Card.Header>
     <Form className="rounded p-4 p-sm-3">
     <Card.Body>
-      <h4> Answer: &nbsp; <Badge bg={'light'} text="dark"> {answer} </Badge> </h4> 
+      <h4> Answer: &nbsp; <Badge bg={'info'} text="dark"> {answer} </Badge> </h4> 
     </Card.Body>
 
     <Card.Body>
       <ScoreList />
       <br/>
-      <Button onClick={startNextRound}>Start Next Round</Button>
+      { props.inGame ? 
+        <Button onClick={startNextRound}>Start Next Round</Button>
+        :
+        <Button onClick={startNextRound} disabled={true}>Start Next Round</Button>
+      }
     </Card.Body>
 
     </Form>

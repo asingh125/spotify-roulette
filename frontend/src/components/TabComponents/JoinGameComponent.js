@@ -9,32 +9,25 @@ const JoinGameComponent = props => {
   const [username, setUsername] = useState('')
   const [playlist, setPlaylist] = useState('')
   const [gamecode, setGameCode] = useState('')
+  const [error, setError] = useState('')
 
   useEffect(() => {
   }, [])
 
-  const navigate = useNavigate();
-
-  const navigateToNewGame = async (result) => {
-    navigate(`/game/${result._id}`)
-  }
+  const navigate = useNavigate()
 
   const joinGame = async () => {
-    let _id = gamecode
-    axios.post('/gameapi/join', { _id, username }).then(response =>{
-      console.log(response.data) 
-      const playlistID = extractgameID(playlist)
-      axios.post('gameapi/add_songs_to_game', { username, playlistID, _id }).then(response => {
-        console.log(response.data)
-        if (response.data !== '') {
-          console.log(_id)
-          navigate(`/game/${_id}`)
-        } else {
-          window.alert(`Error: ${response.data}. Please try again.`)
-        }
-      })
-   })
-
+    const playlistID = extractgameID(playlist)
+    const _id = gamecode
+    const joinResponse = await axios.post('/gameapi/join', { _id, username, playlistID })
+    
+    if (joinResponse.data == 'success'){
+      navigate(`/game/${_id}`)
+    }
+    else {
+      setError(joinResponse.data)
+      // window.alert(`Error: ${joinResponse.data}`)
+    }
   }
 
   // warning when link is in the wrong format??
@@ -65,9 +58,21 @@ const JoinGameComponent = props => {
             {/* <Form.Label>Game Code: </Form.Label> */}
             <Form.Control placeholder="Game code" value={gamecode} onChange={e => setGameCode(e.target.value)} />
             <br/>
+            { (error === '') ? 
+              <></>
+              :
+              <>
+                <Alert variant="danger" onClose={() => setError('')} dismissible> 
+                  <b>ERROR: </b>{` ${error}`}
+                </Alert>
+                <br/>
+              </>
+            }
             <Button variant="primary" onClick={joinGame}>Join game</Button>
           </Form.Group>
 
+
+          
         </Form>
       </Card.Body>
               

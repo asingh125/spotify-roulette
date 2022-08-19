@@ -18,18 +18,20 @@ var authOptions = {
     grant_type: 'client_credentials'
   },
   json: true
-};
+}
 
-// var authOptions = {
-//   url: 'https://accounts.spotify.com/api/token',
-//   form: {
-//     grant_type: 'authorization_code'
-//   },
-//   headers: {
-//     'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64'))
-//   },
-//   json: true
-// }
+
+// Returns the game info (using game id in url)
+router.get('/gameinfo', async (req, res, next) => {
+  try {
+    const idArray = req.headers.referer.split('/')
+    const _id = idArray[idArray.length - 1]
+    const thegame = await Game.findOne({ _id })
+    res.send(thegame.players.toString())
+  } catch (err) {
+    next(err)
+  }
+})
 
 router.post('/create', async (req, res, next) => {
   const mode = 1
@@ -38,8 +40,95 @@ router.post('/create', async (req, res, next) => {
   const songs = []
   const songOrder = []
   const song = ''
+  const players = []
   try {
-    var token = ''
+    const thegame = await Game.create({ players, mode, round, answer, songs, songOrder, song }) //.then(thegame => {        
+    res.send(thegame._id.toString())  
+  } catch (err) {
+    next(err)
+  }
+})
+
+router.post('/leave', async (req, res, next) => {
+  try {
+    const idArray = req.headers.referer.split('/')
+    const _id = idArray[idArray.length - 1]
+    const username = req.session.username
+
+    const thegame = await Game.findOne({ _id })
+    const players = thegame.players
+    const songs = thegame.songs
+
+    if ( (username == undefined) || (thegame == undefined) ) {
+      res.send('Player is not in game.')
+      return
+    }
+
+    if (!players.includes(username)) {
+      res.send('Player is not in game.')
+      return
+    }
+
+    const playerIndex = players.indexOf(username)
+
+    // remove players[playerIndex]
+    players.splice(playerIndex)
+
+    // remove songs[2 * playerIndex] and songs[2 * playerIndex + 1]
+    songs.splice(2 * playerIndex)
+    songs.splice(2 * playerIndex)
+
+    // update the game
+    await Game.updateOne({ _id }, { players, songs })
+
+    // remove cookies
+    req.session.username = undefined
+    req.session.gameID = undefined
+    res.send('success')
+
+  } catch (err) {
+    next(err)
+  }
+})
+
+
+router.post('/join', async (req, res, next) => {
+  try {
+    const { _id, username } = req.body
+
+    const maxUsername = 50
+    if (username.length > maxUsername) {
+      res.send(`Username is too long (Must be under ${maxUsername} characters).`)
+    }
+
+    if (_id.length !== 24) {
+      res.send('Invalid game code.')
+      return
+    } 
+
+    const thegame = await Game.findOne({ _id })
+  
+    // if the gameID is invalid
+    if (!thegame) {
+      res.send('Game does not exist.')
+      return
+    } 
+
+    let players = thegame.players
+    // if there is already a player with that username
+    if (players.includes(username)) {
+      res.send('There is already a player with that username.')
+      return
+    } 
+
+    // if the mode is not 1
+    if (thegame.mode != 1) {
+      res.send('Game is already in progress.')
+      return
+    }
+
+    // Add the songs to the game 
+    let token = ''
     request.post(authOptions, function(error, response, body) {
       if (!error && response.statusCode === 200) {
         token = body.access_token
@@ -47,12 +136,7 @@ router.post('/create', async (req, res, next) => {
       access_token = token
       
       //get the playlist songs and save them in items
-      const { username, playlistID } = req.body
-      // const username = req.session.username
-      // const theuser = await User.findOne({ username })
-      // const playlistID = theuser.playlistID
-      // const access_token = theuser.token
-      console.log(`the playlist ID is : ${playlistID}`)
+      const { username, playlistID, _id } = req.body
       const url = `https://api.spotify.com/v1/playlists/${playlistID}/tracks`
       var options = {
         url: url,
@@ -61,12 +145,12 @@ router.post('/create', async (req, res, next) => {
       };
       let items = []
       request.get(options, async function(error, response, body) {
-        // console.log(body)
-        items = body.items
-        // console.log(items)
-        // console.log(error)
-        // console.log(response)
-        
+        items = body.items 
+        if (items === undefined) {
+          res.send('Could not access playlist. (Most likely invalid link)')
+          return
+        } 
+
         const getRandomInt = (max) => {
           return Math.floor(Math.random() * max);
         }
@@ -86,57 +170,29 @@ router.post('/create', async (req, res, next) => {
         const artists2 = song2.artists
         const string2 = `${username}|${song2.href}|${song2.name}|${artists2[0].name}`
 
-        console.log(string1)
-        console.log(string2)
+        const thegame = await Game.findOne({ _id })
+        players = thegame.players
+        if (thegame.mode !== 1) {
+          res.send('Game is already in progress.')
+          return
+        }
 
-        // Actually create the game now
-        players = [username]
-        Game.create({ players, mode, round, answer, songs, songOrder, song }).then(thegame => {        
-          if (thegame.mode === 1) {
-            //add the songs to the game entry
-            const songs = thegame.songs 
-            const _id = thegame._id
-            songs.push(string1)
-            songs.push(string2)
-            Game.updateOne({ _id }, { songs }).then(result => {
-              // console.log(`http://localhost:3000/game/${_id.toString()}`)
-              req.session.username = username
-              req.session.gameID = _id
-              res.send(_id.toString())
-            })
-          } else {
-            res.send(_id.toString())
-          }
-        })
+        // add the songs to the game entry
+        const songs = thegame.songs 
+        songs.push(string1)
+        songs.push(string2)
+        await Game.updateOne({ _id }, { songs })
+
+        // add the player to the game and set the cookies
+        players.push(username)
+        await Game.updateOne({ _id }, { players })
+        req.session.username = username
+        req.session.gameID = _id
+        res.send('success')
       })
     })
-    
   } catch (err) {
-    console.log(err)
-    next(err)
-  }
-})
-
-router.post('/join', async (req, res, next) => {
-  try {
-    const { _id, username } = req.body
-    const thegame = await Game.findOne({ _id })
-    // if (!req.session.username) {
-    //   res.send('not logged in')
-    // } else 
-    if (!thegame) {
-      res.send('game does not exist')
-    } else {
-      const players = thegame.players
-      players.push(username)
-      await Game.updateOne({ _id }, { players })
-      req.session.username = username
-      req.session.gameID = _id
-      res.send('game joined')
-    }
-  } catch (err) {
-    console.log('WRONG PATH')
-    next(err)
+    res.send('Something went wrong.')
   }
 })
 
@@ -144,8 +200,15 @@ router.get('/gameIDfromURL', async (req, res, next) => {
   try {
     const idArray = req.headers.referer.split('/')
     const _id = idArray[idArray.length - 1]
-    console.log(req.headers)
     res.send(_id.toString())
+  } catch (err) {
+    next(err)
+  }
+})
+
+router.get('/refererURL', async (req, res, next) => {
+  try {
+    res.send(req.headers.referer.toString())
   } catch (err) {
     next(err)
   }
@@ -154,8 +217,24 @@ router.get('/gameIDfromURL', async (req, res, next) => {
 // Returns the game _id, from the cookie
 router.get('/gameID', async (req, res, next) => {
   try {
-    let _id = req.session.gameID
-    res.send(req.session.gameID.toString())
+    if (req.session.gameID == undefined) {
+      res.send('')
+    } else {
+      res.send(req.session.gameID.toString())
+    }
+  } catch (err) {
+    next(err)
+  }
+})
+
+// Returns the username, from the cookie
+router.get('/username', async (req, res, next) => {
+  try {
+    if (req.session.username == undefined) {
+      res.send('')
+    } else {
+      res.send(req.session.username.toString())
+    }
   } catch (err) {
     next(err)
   }
@@ -274,12 +353,9 @@ router.get('/songID', async (req, res, next) => {
     const thegame = await Game.findOne({ _id })
     const songString = thegame.song.toString()
     if (songString.length > 0) {
-      // console.log(`the song string is ${songString}`)
       const songLink = songString.split('|')[1]
-      // console.log(`the song link is ${songLink}`)
       const trackIDArr = songLink.split('/')
       const trackID = trackIDArr[trackIDArr.length - 1]
-      // console.log(trackID)
       res.send(trackID)
     } else {
       res.send('no song set')
@@ -310,22 +386,15 @@ router.get('/roundnum', async (req, res, next) => {
 router.post('/submitanswer', async (req, res, next) => {
   try {
     let { answer } = req.body
-    // console.log(`THE ANSWER IS: ${answer}`)
     const username = req.session.username
-    // console.log(`The persons username is ${username}`)
-    // console.log('hi whats up')
-    // console.log(username)
     const idArray = req.headers.referer.split('/')
     const _id = idArray[idArray.length - 1]
-    // console.log('REACHED HERE')
     let thegame = Game.findOne({ _id }).then( result => {
       let thegame = result
       const correctAnswer = thegame.answer
-      // console.log('THE GAMES MODE IS: ')
       if (thegame.mode === 2) {
         // find our user's index in the list
         let userIndex = thegame.players.indexOf(username)
-        // console.log(`The persons index is ${userIndex}`)
   
         // update their spot in guesses array
         let guesses = thegame.guesses
@@ -362,7 +431,6 @@ router.post('/submitanswer', async (req, res, next) => {
               if (allOtherAnswers) {
                 const mode = 3
                 Game.updateOne({ _id }, { mode }).then( result => {
-                  console.log('mode has been changed')
                 })
               }
             })
@@ -380,12 +448,10 @@ router.post('/submitanswer', async (req, res, next) => {
 })
 
 router.post('/nextround', async (req, res, next) => {
-  console.log('reached hehehehe')
   try {
     const idArray = req.headers.referer.split('/')
     const _id = idArray[idArray.length - 1]
     const thegame = await Game.findOne({ _id })
-    console.log(`The round is ${thegame.round}`)
     if (thegame.mode === 3) {
       //set all answers to empty strings to start
       const players = thegame.players
@@ -444,12 +510,6 @@ router.post('/isLoggedIn', async (req, res) => {
   }
 })
 
-router.post('/add_token_to_user', async (req, res) => {
-  const username = req.session.username
-  const token = req.session.spotify_access_token
-  const theuser = await User.updateOne({ username }, { token })
-})
-
 router.post('/get_playlist_songs', async (req, res) => {
   const username = req.session.username
   const theuser = await User.findOne({ username })
@@ -468,77 +528,44 @@ router.post('/get_playlist_songs', async (req, res) => {
   });
 })
 
-router.post('/add_songs_to_game', async (req, res, next) => {
+router.post('/resetgame', async (req, res, next) => {
   try {
-    var token = ''
-    request.post(authOptions, function(error, response, body) {
-      if (!error && response.statusCode === 200) {
-        token = body.access_token
+    const winners = req.body.winners
+    const idArray = req.headers.referer.split('/')
+    const _id = idArray[idArray.length - 1]
+    const thegame = await Game.findOne({ _id })
+    if (thegame.mode === 4) {
+
+      // add a crown emoji to the username of all the winners
+      const players = thegame.players
+      for (let i = 0; i < winners.length; ++i) {
+        let index = players.indexOf(winners[i])
+        players[index] = players[index] + '👑'
       }
-      access_token = token
-      
-      //get the playlist songs and save them in items
-      const { username, playlistID, _id } = req.body
-      console.log('username: ' + username)
-      console.log('playlist: ' + playlistID)
-      // const username = req.session.username
-      // const theuser = await User.findOne({ username })
-      // const playlistID = theuser.playlistID
-      // const access_token = theuser.token
-      const url = `https://api.spotify.com/v1/playlists/${playlistID}/tracks`
-      var options = {
-        url: url,
-        headers: { 'Authorization': 'Bearer ' + access_token },
-        json: true
-      };
-      let items = []
-      request.get(options, async function(error, response, body) {
-        items = body.items
-        // console.log(items)
-        // console.log(error)
-        // console.log(response)
-        
-        const getRandomInt = (max) => {
-          return Math.floor(Math.random() * max);
-        }
 
-        //get 2 random songs
-        let s1 = getRandomInt(items.length)
-        let s2 = getRandomInt(items.length)
-        while (s2 === s1) {
-          s2 = getRandomInt(items.length)
-        }
-        const song1 = items[s1].track
-        const song2 = items[s2].track
+      // set all guesses to empty strings
+      const guesses = thegame.guesses
+      for (let i = 0; i < players.length; ++i) {
+        guesses[i] = ''
+      }
 
-        //save strings with song info
-        const artists1 = song1.artists
-        const string1 = `${username}|${song1.href}|${song1.name}|${artists1[0].name}`
-        const artists2 = song2.artists
-        const string2 = `${username}|${song2.href}|${song2.name}|${artists2[0].name}`
+      // set all scores to 0
+      const scores = thegame.scores
+      for (let i = 0; i < players.length; ++i) {
+        scores[i] = 0
+      }
 
-        console.log(string1)
-        console.log(string2)
+      const mode = 1
 
-        players = [username]
-        const thegame = await Game.findOne({ _id })
-        if (thegame.mode === 1) {
-          //add the songs to the game entry
-          const songs = thegame.songs 
-          songs.push(string1)
-          songs.push(string2)
-          Game.updateOne({ _id }, { songs }).then(result => {
-            res.send(_id.toString())
-          })
-        } else {
-          res.send(_id.toString())
-        }
-      })
-    })
-    
+      await Game.updateOne({ _id }, { guesses, players, scores, mode })
+      res.send('success')
 
+    } else {
+      res.send('The game is in progress.')
+    }
   } catch (err) {
     next(err)
+    res.send('Something went wrong.')
   }
 })
 

@@ -127,21 +127,28 @@ const AnswerSubmitter = props => {
         {/* </ListGroup> */}
 
         <p></p>
-
-        {submitted ? 
-          <Button onClick={submitAnswer} disabled = "disabled"> 
-          <Spinner
-            as="span"
-            animation="border"
-            size="sm"
-            role="status"
-            aria-hidden="true"
-          />
-            {'  Waiting for others to submit...'}
-          </Button>
-        :
-          <Button onClick={submitAnswer}>Submit Answer</Button>
+        { props.inGame ?
+          <>
+            {submitted ? 
+              <Button onClick={submitAnswer} disabled = "disabled"> 
+              <Spinner
+                as="span"
+                animation="border"
+                size="sm"
+                role="status"
+                aria-hidden="true"
+              />
+                {'  Waiting for others to submit...'}
+              </Button>
+            :
+              <Button onClick={submitAnswer}>Submit Answer</Button>
+            }
+          </>
+          :
+          <Button onClick={submitAnswer} disabled = "disabled">Submit Answer</Button>
         }
+
+
       </Card.Body>
 
     </>

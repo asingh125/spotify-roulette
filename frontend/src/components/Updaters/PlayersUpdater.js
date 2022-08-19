@@ -4,6 +4,7 @@ import axios from 'axios'
 
 const PlayersUpdater = props => {
   const setState = props.setState
+  const period = props.period
 
   const [newState, setNewState] = useState(props.initial)
   const [lastState, setLastState] = useState(props.initial)
@@ -34,7 +35,7 @@ const PlayersUpdater = props => {
       }
       setLastState(newState)
       updatePlayers()
-    }, 500)
+    }, period)
     return () => clearInterval(interval)
   }, [newState, lastState])
 
