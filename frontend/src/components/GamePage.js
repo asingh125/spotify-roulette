@@ -72,7 +72,7 @@ const GamePage = props => {
     }
   }
 
-  const period = 100
+  const period = 400
   const updaterList = [
     <ModeUpdater setState={setMode} initial={mode} period={period}/>,
     <SongUpdater setState={setSong} initial={song} period={period}/>,
@@ -99,7 +99,6 @@ const GamePage = props => {
             </Card.Body>
           </Form>
       </Container>
-
 
       {updaterList}
 

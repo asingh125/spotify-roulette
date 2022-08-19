@@ -58,6 +58,8 @@ router.post('/leave', async (req, res, next) => {
     const thegame = await Game.findOne({ _id })
     const players = thegame.players
     const songs = thegame.songs
+    console.log(players)
+    console.log(songs)
 
     if ( (username == undefined) || (thegame == undefined) ) {
       res.send('Player is not in game.')
@@ -70,13 +72,17 @@ router.post('/leave', async (req, res, next) => {
     }
 
     const playerIndex = players.indexOf(username)
+    console.log(playerIndex)
 
     // remove players[playerIndex]
-    players.splice(playerIndex)
+    players.splice(playerIndex, 1)
 
     // remove songs[2 * playerIndex] and songs[2 * playerIndex + 1]
-    songs.splice(2 * playerIndex)
-    songs.splice(2 * playerIndex)
+    songs.splice(2 * playerIndex, 1)
+    songs.splice(2 * playerIndex, 1)
+
+    console.log(players)
+    console.log(songs)
 
     // update the game
     await Game.updateOne({ _id }, { players, songs })
@@ -87,6 +93,7 @@ router.post('/leave', async (req, res, next) => {
     res.send('success')
 
   } catch (err) {
+    res.send('Something went wrong.')
     next(err)
   }
 })

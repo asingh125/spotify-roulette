@@ -17,6 +17,7 @@ const RoundUpdater = props => {
       }
       setLastState(newState)
       updateRound()
+
     }, period)
     return () => clearInterval(interval)
   }, [newState, lastState])
