@@ -22,7 +22,7 @@ To start playing, input a username and a link to your favorite Spotify playlist,
 
 ## Technologies
 
-- [React](https://es.reactjs.org/)
+- [React](https://reactjs.org/)
 - [React-Bootstrap](https://react-bootstrap.github.io/)
 - [Spotify Web API](https://developer.spotify.com/documentation/web-api/)
 
