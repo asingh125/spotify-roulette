@@ -4,7 +4,7 @@
 ## A web app game to test how well you know your friends' music taste! 
 
 <h2 align="center">
-  <img src="https://github.com/cobidev/gatsby-simplefolio/blob/master/examples/example.gif" alt="Gatsby Simplefolio" width="600px" />
+  <img src="https://github.com/asingh125/spotify-roulette/blob/deploy/frontend/images/SR-preview-gif.gif" alt="Spotify Roulette Preview Gif" width="600px" />
   <br>
 </h2>
 
