@@ -8,12 +8,10 @@
   <br>
 </h2>
 
----
 ## How to Play
 
 To play a live version of the game, **[click here](https://spotify-roulette.heroku.com/)**
 
----
 
 ## Instructions
 
@@ -21,7 +19,6 @@ Each round, a song from a different player's playlist will show up on the screen
 
 To start playing, input a username and a link to your favorite Spotify playlist, then share your game code with your friends! 
 
----
 
 ## Technologies
 
@@ -29,7 +26,6 @@ To start playing, input a username and a link to your favorite Spotify playlist,
 - [React-Bootstrap](https://react-bootstrap.github.io/)
 - [Spotify Web API](https://developer.spotify.com/documentation/web-api/)
 
----
 
 ## Creator
 
