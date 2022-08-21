@@ -10,7 +10,7 @@
 
 ## How to Play
 
-To play a live version of the game, **[click here](https://spotify-roulette.heroku.com/)**
+To play a live version of the game, **[click here](https://spotify-roulette.herokuapp.com/)**
 
 
 ## Instructions
