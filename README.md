@@ -1,19 +1,36 @@
-# Spotify Roulette
 
-## Welcome to Spotify Roulette, a game where you try to guess your friends' music taste!
+# Spotify Roulette 🎵
 
-Each round, a song from a different player's playlist will show up on the screen, and each player must guess whose they think it came from. The person with the most correct guesses at the end of the game wins.
+## A web app game to test how well you know your friends' music taste! 
 
-To start playing, create an account with your username, password, and a link to your favorite Spotify playlist. Make sure to link this account to your Spotify account once you're logged in. Have fun!
+<h2 align="center">
+  <img src="https://github.com/cobidev/gatsby-simplefolio/blob/master/examples/example.gif" alt="Gatsby Simplefolio" width="600px" />
+  <br>
+</h2>
 
+---
+## How to Play
 
-# How to Run
+To play a live version of the game, **[click here](https://spotify-roulette.heroku.com/)**
 
-Clone the repository onto your machine. Cd into the root directory and run "npm install". Start the program by running "npm run dev". The program will run on "http://localhost:3000/". 
+---
 
+## Instructions
 
-**IMPORTANT:** Due to issues with redirects, there are two cases where the user has to copy a link from the terminal and paste it into broswer. 
-1. First, when the user clicks the button that connects their Spotify account to the app, the must open their terminal and copy and paste the link printed there into their browser (it should link to "https://accounts.spotify.com/MORE_STUFF_HERE). 
-2. Second, after the user clicks Start Game, the user needs to paste the link generated in their terminal into their browser (it should be of the format "http://localhost:3000/game/GAME_ID", where GAME_ID is a unique string). 
+Each round, a song from a different player's playlist will show up on the screen. Each player must guess whose playlist they think it came from. The person with the most correct guesses at the end of the game wins.
 
-**IMPORTANT:** You also need to download this Chrome extension and enable it for some of the API requests to work: https://chrome.google.com/webstore/detail/moesif-origin-cors-change/digfbfaphojjndkpccljibejjbppifbc?hl=en-US
+To start playing, input a username and a link to your favorite Spotify playlist, then share your game code with your friends! 
+
+---
+
+## Technologies
+
+- [React](https://es.reactjs.org/)
+- [React-Bootstrap](https://react-bootstrap.github.io/)
+- [Spotify Web API](https://developer.spotify.com/documentation/web-api/)
+
+---
+
+## Creator
+
+- **Aarushi Singh** - [https://asingh125.github.io](https://asingh125.github.io)
