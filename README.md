@@ -20,13 +20,15 @@ Each round, a song from a different player's playlist will show up on the screen
 To start playing, input a username and a link to your favorite Spotify playlist, then share your game code with your friends! 
 
 
-## Technologies
+## Main Technologies Used
 
-- [React](https://reactjs.org/)
-- [React-Bootstrap](https://react-bootstrap.github.io/)
-- [Spotify Web API](https://developer.spotify.com/documentation/web-api/)
+- [Node.js](https://nodejs.org/en/about/) for backend
+- [Express](https://expressjs.com/) for backend
+- [React](https://reactjs.org/) for frontend
+- [React-Bootstrap](https://react-bootstrap.github.io/) for frontend styling
+- [Spotify Web API](https://developer.spotify.com/documentation/web-api/) for playlist requests and in-browser song playing
 
 
 ## Creator
 
-- **Aarushi Singh** - [https://asingh125.github.io](https://asingh125.github.io)
+**Aarushi Singh** [https://asingh125.github.io](https://asingh125.github.io)
